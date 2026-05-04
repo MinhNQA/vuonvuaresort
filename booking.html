@@ -545,7 +545,7 @@ async function saveBookingToSupabase(booking) {
     checkin: booking.checkin,
     checkout: booking.checkout,
     numbers: String(booking.guests),
-    services: booking.serviceLabel,
+    service: booking.serviceLabel,
   };
   const response = await fetch(`${SUPABASE_URL}/rest/v1/customers`, {
     method: 'POST',
