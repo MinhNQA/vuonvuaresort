@@ -535,19 +535,33 @@ function saveBookingToHistory(booking) {
   localStorage.setItem(key, JSON.stringify(current));
 }
 
-async function syncBookingToOta(booking) {
-  const cfg = JSON.parse(localStorage.getItem('vv_ota_config') || '{}');
-  if (!cfg.endpointUrl) return { ok: false, skipped: true };
-  try {
-    const response = await fetch(cfg.endpointUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(cfg.apiKey ? { 'x-api-key': cfg.apiKey } : {}) },
-      body: JSON.stringify(booking),
-    });
-    return { ok: response.ok, skipped: false };
-  } catch (error) {
-    return { ok: false, skipped: false };
+async function saveBookingToSupabase(booking) {
+  const SUPABASE_URL = 'https://tzoonwlaxggpmanfvktv.supabase.co';
+  const SUPABASE_ANON_KEY = 'JhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6b29ud2xheGdncG1hbmZ2a3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDM2NjMsImV4cCI6MjA5MzQ3OTY2M30.33165vW_59tgz-gawHDdpJPF3gd74HUVhiRvDtVYmCo';
+  const payload = {
+    name: booking.guestName,
+    email: booking.email,
+    phone_num: booking.phone,
+    checkin: booking.checkin,
+    checkout: booking.checkout,
+    numbers: String(booking.guests),
+    services: booking.serviceLabel,
+  };
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/customers`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      Prefer: 'return=representation',
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(`Supabase insert failed: ${response.status} ${details}`);
   }
+  return response.json();
 }
 
 async function submitBooking() {
@@ -583,15 +597,19 @@ async function submitBooking() {
     status: 'new',
   };
 
-  await new Promise((resolve) => setTimeout(resolve, 700));
-  saveBookingToHistory(booking);
-  const otaSync = await syncBookingToOta(booking);
-
-  document.getElementById('bookingForm').style.display = 'none';
-  document.getElementById('bookingSuccess').classList.add('show');
-  if (otaSync.skipped) showNotification('Đặt phòng thành công. Chưa cấu hình OTA.');
-  else if (otaSync.ok) showNotification('Đặt phòng thành công và đã sync OTA.');
-  else showNotification('Đặt phòng thành công, nhưng sync OTA thất bại.');
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    await saveBookingToSupabase(booking);
+    saveBookingToHistory(booking);
+    document.getElementById('bookingForm').style.display = 'none';
+    document.getElementById('bookingSuccess').classList.add('show');
+    showNotification('Đặt phòng thành công và đã lưu hệ thống.');
+  } catch (error) {
+    showNotification('Không thể gửi booking. Vui lòng thử lại.');
+    submitBtn.textContent = 'Gửi Yêu Cầu Đặt Phòng';
+    submitBtn.style.opacity = '1';
+    submitBtn.disabled = false;
+  }
 }
 
 function showNotification(msg) {
