@@ -537,7 +537,7 @@ function saveBookingToHistory(booking) {
 
 async function saveBookingToSupabase(booking) {
   const SUPABASE_URL = 'https://tzoonwlaxggpmanfvktv.supabase.co';
-  const SUPABASE_ANON_KEY = 'JhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6b29ud2xheGdncG1hbmZ2a3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDM2NjMsImV4cCI6MjA5MzQ3OTY2M30.33165vW_59tgz-gawHDdpJPF3gd74HUVhiRvDtVYmCo';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6b29ud2xheGdncG1hbmZ2a3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDM2NjMsImV4cCI6MjA5MzQ3OTY2M30.33165vW_59tgz-gawHDdpJPF3gd74HUVhiRvDtVYmCo';
   const payload = {
     name: booking.guestName,
     email: booking.email,
