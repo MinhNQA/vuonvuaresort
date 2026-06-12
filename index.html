@@ -1,0 +1,838 @@
+﻿<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vườn Vua Resort — Dịch vụ & Trải nghiệm</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ═══════════════════════════════════════
+     JAPANESE PALETTE
+     Dark  → Sumi ink  #0D0A0A  + Aka red  #C8102E  + Shiro white  #F5F0EE
+     Light → Shiro     #F5F0EE  + Aka red  #C8102E  + Sumi ink dark text
+  ═══════════════════════════════════════ */
+  :root {
+    --red:       #D4AF37;
+    --red-deep:  #A67C1C;
+    --red-light: #F0D77C;
+    --red-pale:  rgba(212,175,55,0.12);
+    --red-glow:  rgba(212,175,55,0.25);
+    --white:     #F5F0EE;
+    --off-white: #EDE6E3;
+    --transition-theme: background 0.55s cubic-bezier(0.23,1,0.32,1),
+                        color 0.55s cubic-bezier(0.23,1,0.32,1),
+                        border-color 0.55s, box-shadow 0.55s;
+  }
+
+  /* ── DARK (Sumi) ── */
+  [data-theme="dark"] {
+    --bg:           #090E2A;
+    --bg2:          #0E1438;
+    --bg3:          #131B46;
+    --surface:      rgba(212,175,55,0.06);
+    --surface2:     rgba(212,175,55,0.12);
+    --border:       rgba(212,175,55,0.2);
+    --border2:      rgba(212,175,55,0.45);
+    --text:         #F5F0EE;
+    --text2:        rgba(245,240,238,0.6);
+    --text3:        rgba(245,240,238,0.28);
+    --accent:       var(--red);
+    --accent-light: var(--red-light);
+    --accent-muted: rgba(200,16,46,0.5);
+    --hero-overlay: linear-gradient(to bottom,rgba(13,10,10,0.35) 0%,rgba(13,10,10,0.08) 40%,rgba(13,10,10,0.75) 100%);
+    --slide-overlay:linear-gradient(110deg,rgba(13,10,10,0.9) 38%,rgba(13,10,10,0.1) 100%);
+    --card-over:    linear-gradient(to top,rgba(13,10,10,0.97) 0%,rgba(13,10,10,0.22) 55%,transparent 100%);
+    --stat-bg:      #F5F0EE;
+    --stat-grid:    #EDE6E3;
+    --stat-text:    #0D0A0A;
+    --stat-val:     var(--red);
+    --stat-lbl:     rgba(13,10,10,0.45);
+    --nav-bg:       rgba(13,10,10,0.93);
+    --marquee-dim:  rgba(245,240,238,0.06);
+    --marquee-acc:  rgba(200,16,46,0.38);
+    --exp-bg:       #F5F0EE;
+    --exp-text:     #0D0A0A;
+    --exp-text2:    rgba(13,10,10,0.65);
+    --exp-num:      var(--red);
+    --exp-eyebrow:  var(--red);
+    --sw-bg:        #1E1212;
+    --sw-border:    rgba(200,16,46,0.3);
+    --loader-bg:    #0D0A0A;
+    --notif-fg:     #F5F0EE;
+  }
+
+  /* ── LIGHT (Shiro) ── */
+  [data-theme="light"] {
+    --bg:           #EEE7E3;
+    --bg2:          #E3DAD6;
+    --bg3:          #DAD0CB;
+    --surface:      rgba(200,16,46,0.05);
+    --surface2:     rgba(200,16,46,0.1);
+    --border:       rgba(200,16,46,0.18);
+    --border2:      rgba(200,16,46,0.4);
+    --text:         #0D0A0A;
+    --text2:        rgba(13,10,10,0.6);
+    --text3:        rgba(13,10,10,0.3);
+    --accent:       var(--red);
+    --accent-light: var(--red-deep);
+    --accent-muted: rgba(200,16,46,0.45);
+    --hero-overlay: linear-gradient(to bottom,rgba(13,10,10,0.35) 0%,rgba(13,10,10,0.12) 40%,rgba(13,10,10,0.66) 100%);
+    --slide-overlay:linear-gradient(110deg,rgba(245,240,238,0.8) 38%,rgba(13,10,10,0.2) 100%);
+    --card-over:    linear-gradient(to top,rgba(13,10,10,0.96) 0%,rgba(13,10,10,0.22) 55%,transparent 100%);
+    --stat-bg:      #0D0A0A;
+    --stat-grid:    #1E1212;
+    --stat-text:    #F5F0EE;
+    --stat-val:     var(--red-light);
+    --stat-lbl:     rgba(245,240,238,0.45);
+    --nav-bg:       rgba(245,240,238,0.95);
+    --marquee-dim:  rgba(13,10,10,0.06);
+    --marquee-acc:  rgba(200,16,46,0.35);
+    --exp-bg:       #0D0A0A;
+    --exp-text:     #F5F0EE;
+    --exp-text2:    rgba(245,240,238,0.65);
+    --exp-num:      var(--red-light);
+    --exp-eyebrow:  var(--red-light);
+    --sw-bg:        #EDE6E3;
+    --sw-border:    rgba(200,16,46,0.22);
+    --loader-bg:    #F5F0EE;
+    --notif-fg:     #F5F0EE;
+  }
+
+  * { margin:0;padding:0;box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;cursor:none;transition:var(--transition-theme); }
+
+  /* ── JAPANESE TORII WATERMARK ── */
+  body::before {
+    content:'♛';
+    position:fixed;
+    bottom:-60px; right:-40px;
+    font-size:400px;
+    opacity:0.025;
+    pointer-events:none;
+    z-index:0;
+    line-height:1;
+    transition:opacity 0.5s;
+  }
+
+  /* ── THEME SWITCH ── */
+  .theme-switch { position:relative;width:56px;height:28px;background:var(--sw-bg);border:1px solid var(--sw-border);border-radius:14px;cursor:none;transition:var(--transition-theme);flex-shrink:0; }
+  .theme-switch-thumb { position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:11px;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none; }
+  [data-theme="light"] .theme-switch-thumb { transform:translateX(28px); }
+  .theme-switch:hover { border-color:var(--red); }
+
+  /* ── CURSOR ── */
+  .cursor { position:fixed;width:8px;height:8px;background:var(--red);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%); }
+  .cursor-follower { position:fixed;width:36px;height:36px;border:1px solid var(--red);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all 0.15s ease;opacity:0.5; }
+
+  /* ── PROGRESS ── */
+  .scroll-progress { position:fixed;top:0;left:0;height:2px;background:var(--red);z-index:200;transition:width 0.1s linear;width:0%; }
+
+  /* ── NAV ── */
+  nav { position:fixed;top:0;left:0;right:0;z-index:100;padding:28px 60px;display:flex;justify-content:space-between;align-items:center;transition:all 0.6s cubic-bezier(0.23,1,0.32,1);gap:24px; }
+  nav.scrolled { padding:18px 60px;background:var(--nav-bg);backdrop-filter:blur(20px);border-bottom:1px solid var(--border); }
+  .logo { display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none;transition:color 0.4s; }
+  .logo img { width:56px;height:56px;object-fit:contain; }
+  .logo strong { font-family:'Cormorant Garamond',serif;font-size:27px;font-weight:600;letter-spacing:1px;line-height:1;display:block; }
+  nav.scrolled .logo { color:var(--text); }
+  .logo span { color:var(--red); }
+  .logo-ja { font-size:11px;letter-spacing:3px;color:var(--red);display:block;margin-top:-4px;font-family:'Be Vietnam Pro',sans-serif; }
+  .nav-links { display:flex;gap:44px;list-style:none; }
+  .nav-links a { color:#fff;text-decoration:none;font-size:13px;font-weight:400;letter-spacing:1.5px;text-transform:uppercase;opacity:0.85;transition:opacity 0.3s,color 0.4s;position:relative; }
+  nav.scrolled .nav-links a { color:var(--text); }
+  .nav-links a::after { content:'';position:absolute;bottom:-4px;left:0;right:0;height:1px;background:var(--red);transform:scaleX(0);transform-origin:right;transition:transform 0.4s cubic-bezier(0.23,1,0.32,1); }
+  .nav-links a:hover { opacity:1; }
+  .nav-links a:hover::after { transform:scaleX(1);transform-origin:left; }
+  .nav-right { display:flex;align-items:center;gap:16px; }
+  .nav-cta { background:transparent;border:1px solid var(--red);color:var(--red);padding:10px 28px;font-family:'Be Vietnam Pro',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:none;transition:all 0.4s; }
+  .nav-cta:hover { background:var(--red);color:#fff; }
+
+  /* ── HERO ── */
+  .hero { position:relative;height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden; }
+  .hero-bg { position:absolute;inset:0;background:url('assets/header.jpg') center/cover no-repeat;transform:scale(1.1); }
+  .hero-overlay { position:absolute;inset:0;background:var(--hero-overlay);transition:background 0.55s; }
+  /* Red stripe accent */
+  .hero-stripe { position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(to bottom,transparent,var(--red) 30%,var(--red) 70%,transparent);z-index:3;opacity:0.8; }
+  .hero-content { position:relative;text-align:center;z-index:2;max-width:900px;padding:0 40px; }
+  .hero-eyebrow { font-size:11px;letter-spacing:6px;text-transform:uppercase;color:var(--red);opacity:0;transform:translateY(20px);animation:fadeUp 1s 0.3s cubic-bezier(0.23,1,0.32,1) forwards; }
+  .hero-kanji { font-size:clamp(16px,3vw,28px);letter-spacing:12px;color:rgba(245,240,238,0.12);font-family:'Cormorant Garamond',serif;display:block;margin-bottom:8px;opacity:0;transform:translateY(10px);animation:fadeUp 1s 0.5s forwards; }
+  .hero-title { font-family:'Cormorant Garamond',serif;font-size:clamp(60px,9vw,128px);font-weight:300;line-height:1;letter-spacing:-2px;margin:20px 0;color:#fff;opacity:0;transform:translateY(30px);animation:fadeUp 1.2s 0.6s cubic-bezier(0.23,1,0.32,1) forwards; }
+  .hero-title em { font-style:italic;color:var(--red-light); }
+  .hero-sub { font-size:16px;font-weight:300;opacity:0;color:rgba(245,240,238,0.8);letter-spacing:1px;line-height:1.8;transform:translateY(20px);animation:fadeUp 1s 0.95s cubic-bezier(0.23,1,0.32,1) forwards; }
+  .hero-actions { display:flex;gap:20px;justify-content:center;margin-top:48px;opacity:0;transform:translateY(20px);animation:fadeUp 1s 1.2s cubic-bezier(0.23,1,0.32,1) forwards; }
+  .btn-primary { background:var(--red);color:#fff;border:none;padding:16px 44px;font-family:'Be Vietnam Pro',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:none;text-decoration:none;display:inline-block;transition:all 0.4s cubic-bezier(0.23,1,0.32,1);font-weight:500; }
+  .btn-primary:hover { background:var(--red-deep);transform:translateY(-2px); }
+  .btn-ghost { background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.45);padding:16px 44px;font-family:'Be Vietnam Pro',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:none;text-decoration:none;display:inline-block;transition:all 0.4s; }
+  .btn-ghost:hover { border-color:#fff; }
+  .scroll-hint { position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;animation:fadeIn 1s 2s forwards;z-index:2; }
+  .scroll-hint span { font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--red);opacity:0.75; }
+  .scroll-line { width:1px;height:60px;background:linear-gradient(to bottom,var(--red),transparent);animation:scrollPulse 2s infinite; }
+
+  /* ── STICKY SLIDES ── */
+  .sticky-wrapper { position:relative;height:400vh; }
+  .sticky-inner { position:sticky;top:0;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center; }
+  .sticky-slides { position:relative;width:100%;height:100%; }
+  .slide { position:absolute;inset:0;display:flex;align-items:center;opacity:0;pointer-events:none;transition:opacity 0.8s cubic-bezier(0.23,1,0.32,1); }
+  .slide.active { opacity:1;pointer-events:auto; }
+  .slide-bg { position:absolute;inset:0;background-size:cover;background-position:center; }
+  .slide-overlay { position:absolute;inset:0;background:var(--slide-overlay);transition:background 0.55s; }
+  /* Vertical red bar on slides */
+  .slide-bar { position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,transparent,var(--red) 20%,var(--red) 80%,transparent);z-index:3; }
+  .slide-content { position:relative;z-index:2;padding:0 10vw;max-width:700px; }
+  .slide-number { font-family:'Cormorant Garamond',serif;font-size:120px;font-weight:300;color:rgba(200,16,46,0.07);line-height:1;position:absolute;top:-50px;left:calc(10vw - 15px);letter-spacing:-5px;pointer-events:none; }
+  .slide-tag { display:inline-block;background:var(--red);color:#fff;font-size:10px;letter-spacing:3px;text-transform:uppercase;padding:5px 14px;margin-bottom:20px;font-weight:500; }
+  .slide-name { font-family:'Cormorant Garamond',serif;font-size:clamp(40px,6vw,80px);font-weight:300;line-height:1.1;margin-bottom:12px;color:var(--text); }
+  .slide-loc { color:var(--red);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:8px; }
+  .slide-desc { font-size:16px;line-height:1.9;color:var(--text2);font-weight:300;max-width:480px;margin-bottom:36px; }
+  .slide-stats { display:flex;gap:36px;margin-bottom:36px; }
+  .s-val { font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--red); }
+  .s-lbl { font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-top:2px; }
+  .slide-price { font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--red);margin-bottom:28px; }
+  .slide-price span { font-size:14px;color:var(--text3);font-family:'Be Vietnam Pro',sans-serif; }
+  .slide-dots { position:absolute;bottom:60px;left:10vw;display:flex;gap:10px;z-index:10; }
+  .dot { width:6px;height:6px;border-radius:50%;background:rgba(200,16,46,0.25);transition:all 0.4s;cursor:none; }
+  .dot.active { background:var(--red);width:24px;border-radius:3px; }
+
+  /* ── MARQUEE ── */
+  .text-scroll-section { background:var(--bg2);padding:180px 0;overflow:hidden;position:relative;transition:background 0.55s; }
+  .text-scroll-section::before { content:'';position:absolute;top:0;left:0;right:0;height:180px;background:linear-gradient(to bottom,var(--bg),transparent);z-index:1;transition:background 0.55s; }
+  .text-scroll-section::after  { content:'';position:absolute;bottom:0;left:0;right:0;height:180px;background:linear-gradient(to top,var(--bg),transparent);z-index:1;transition:background 0.55s; }
+  .big-text-line { white-space:nowrap;font-family:'Cormorant Garamond',serif;font-size:clamp(60px,10vw,130px);font-weight:300;letter-spacing:-2px;padding:10px 0;will-change:transform; }
+  .big-text-line.dim { color:var(--marquee-dim); }
+  .big-text-line.acc { color:var(--marquee-acc); }
+  .big-text-line span { font-style:italic; }
+
+  /* ── STATS ── */
+  .stats-section { background:var(--stat-bg);padding:120px 10vw;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;transition:background 0.55s; }
+  .stats-text h2 { font-family:'Cormorant Garamond',serif;font-size:clamp(40px,5vw,70px);font-weight:300;line-height:1.2;color:var(--stat-text);margin-bottom:24px; }
+  .stats-text h2 em { font-style:italic;color:var(--stat-val); }
+  .stats-text p { font-size:16px;line-height:1.9;color:var(--stat-text);opacity:0.65;font-weight:300;max-width:440px; }
+  .stats-grid { display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--stat-grid); }
+  .stat-box { background:var(--stat-bg);padding:44px 36px;text-align:center;opacity:0;transform:translateY(20px);transition:opacity 0.6s cubic-bezier(0.23,1,0.32,1),transform 0.6s cubic-bezier(0.23,1,0.32,1),background 0.55s; }
+  .stat-box.visible { opacity:1;transform:none; }
+  .stat-box:nth-child(2){transition-delay:.1s}.stat-box:nth-child(3){transition-delay:.2s}.stat-box:nth-child(4){transition-delay:.3s}
+  .stat-box-val { font-family:'Cormorant Garamond',serif;font-size:58px;font-weight:300;color:var(--stat-val);line-height:1; }
+  .stat-box-lbl { font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--stat-lbl);margin-top:10px; }
+
+  /* ── VILLAS ── */
+  .villas-section { background:var(--bg);padding:120px 10vw;transition:background 0.55s; }
+  .section-header { text-align:center;margin-bottom:80px; }
+  .section-eyebrow { font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--red);margin-bottom:20px;display:block; }
+  .section-title { font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5vw,64px);font-weight:300;line-height:1.2; }
+  .section-title em { font-style:italic;color:var(--red); }
+  .villas-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:2px; }
+  .villa-card { position:relative;aspect-ratio:3/4;overflow:hidden;cursor:none; }
+  .villa-card:first-child { grid-column:span 2;aspect-ratio:auto;min-height:500px; }
+  .villa-img { position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.05);transition:transform 0.8s cubic-bezier(0.23,1,0.32,1); }
+  .villa-card:hover .villa-img { transform:scale(1); }
+  .villa-card-overlay { position:absolute;inset:0;background:var(--card-over);transition:all 0.5s; }
+  .villa-card:hover .villa-card-overlay { background:linear-gradient(to top,rgba(13,10,10,0.99) 0%,rgba(13,10,10,0.55) 60%,rgba(13,10,10,0.12) 100%); }
+  /* Red corner accent on hover */
+  .villa-card::after { content:'';position:absolute;top:0;left:0;width:0;height:3px;background:var(--red);transition:width 0.5s cubic-bezier(0.23,1,0.32,1);z-index:4; }
+  .villa-card:hover::after { width:100%; }
+  .villa-card-content { position:absolute;bottom:0;left:0;right:0;padding:36px; }
+  .villa-card-tags { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px; }
+  .tag { background:rgba(200,16,46,0.18);border:1px solid rgba(200,16,46,0.35);color:#E8374F;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;transition:all 0.3s; }
+  .villa-card:hover .tag { background:rgba(200,16,46,0.3); }
+  .villa-card-name { font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;margin-bottom:8px;color:#fff; }
+  .villa-card-loc { font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--red-light);margin-bottom:20px;opacity:0.9; }
+  .villa-card-meta { display:flex;justify-content:space-between;align-items:flex-end; }
+  .villa-price { font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--red-light); }
+  .villa-price small { font-family:'Be Vietnam Pro',sans-serif;font-size:11px;color:rgba(245,240,238,0.45);margin-left:4px; }
+  .villa-rating { display:flex;align-items:center;gap:6px;font-size:13px;color:var(--red-light); }
+  .villa-rating span { color:rgba(245,240,238,0.5);font-size:11px; }
+
+  /* ── EXPERIENCE ── */
+  .experience-section { background:var(--exp-bg);padding:160px 10vw;transition:background 0.55s; }
+  .experience-section .section-eyebrow { color:var(--exp-eyebrow); }
+  .experience-section .section-title { color:var(--exp-text); }
+  .experience-section .section-title em { color:var(--exp-eyebrow); font-style:italic; }
+  .experience-grid { display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:start;margin-top:80px; }
+  .experience-item { opacity:0;transform:translateY(40px);transition:all 0.8s cubic-bezier(0.23,1,0.32,1); }
+  .experience-item.visible { opacity:1;transform:none; }
+  .experience-item:nth-child(2){transition-delay:.15s;margin-top:80px}
+  .experience-item:nth-child(3){transition-delay:.1s}
+  .experience-item:nth-child(4){transition-delay:.25s;margin-top:80px}
+  .exp-img { width:100%;aspect-ratio:4/3;object-fit:cover;display:block;margin-bottom:28px;border-bottom:2px solid var(--red); }
+  .exp-num { font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--exp-num);letter-spacing:3px;margin-bottom:16px;display:block; }
+  .exp-title { font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:400;line-height:1.2;margin-bottom:16px;color:var(--exp-text); }
+  .exp-desc { font-size:15px;line-height:1.9;color:var(--exp-text2);font-weight:300; }
+
+  /* ── TESTIMONIALS ── */
+  .testimonials-section { background:var(--bg);padding:160px 10vw;position:relative;overflow:hidden;transition:background 0.55s; }
+  .testimonials-track { display:flex;gap:40px;animation:marqueeLeft 40s linear infinite;width:max-content;margin-top:80px; }
+  .testimonials-track:hover { animation-play-state:paused; }
+  .testimonial-card { background:var(--surface);border:1px solid var(--border);padding:48px;width:460px;flex-shrink:0;transition:border-color 0.4s,background 0.5s;position:relative;overflow:hidden; }
+  .testimonial-card::before { content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent;transition:background 0.4s; }
+  .testimonial-card:hover { border-color:var(--border2); }
+  .testimonial-card:hover::before { background:var(--red); }
+  .testimonial-stars { display:flex;gap:4px;margin-bottom:24px; }
+  .star { color:var(--red);font-size:16px; }
+  .testimonial-text { font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;font-style:italic;line-height:1.7;color:var(--text);margin-bottom:36px;transition:color 0.55s; }
+  .testimonial-text::before { content:'"';color:var(--red);font-size:52px;line-height:0;vertical-align:-0.35em;margin-right:4px;font-style:normal; }
+  .testimonial-author { display:flex;align-items:center;gap:16px; }
+  .testimonial-avatar { width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--red); }
+  .testimonial-name { font-weight:500;font-size:15px;margin-bottom:2px;color:var(--text);transition:color 0.55s; }
+  .testimonial-meta { font-size:12px;color:var(--red);letter-spacing:1px; }
+
+  /* ── FOOTER ── */
+  footer { background:var(--bg);border-top:1px solid var(--border);padding:80px 10vw 40px;transition:background 0.55s; }
+  .footer-grid { display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;margin-bottom:60px; }
+  .footer-logo { font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;letter-spacing:3px;margin-bottom:6px;color:var(--text); }
+  .footer-logo span { color:var(--red); }
+  .footer-ja { font-size:10px;letter-spacing:4px;color:var(--red);opacity:0.7;margin-bottom:18px;display:block; }
+  .footer-tagline { font-size:14px;line-height:1.8;color:var(--text2);font-weight:300;max-width:280px;margin-bottom:32px; }
+  .footer-socials { display:flex;gap:16px; }
+  .social-link { width:40px;height:40px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--red);font-size:14px;text-decoration:none;transition:all 0.3s; }
+  .social-link:hover { border-color:var(--red);background:var(--red-pale); }
+  .footer-col h4 { font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:24px; }
+  .footer-links { list-style:none;display:flex;flex-direction:column;gap:12px; }
+  .footer-links a { color:var(--text2);text-decoration:none;font-size:14px;font-weight:300;transition:color 0.3s;cursor:none; }
+  .footer-links a:hover { color:var(--red); }
+  .footer-bottom { border-top:1px solid var(--border);padding-top:32px;display:flex;justify-content:space-between;align-items:center;color:var(--text3);font-size:13px; }
+
+  /* ── LOADER ── */
+  .loader { position:fixed;inset:0;background:var(--loader-bg);z-index:1000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;transition:opacity 0.8s,visibility 0.8s; }
+  .loader.hidden { opacity:0;visibility:hidden; }
+  .loader-circle { width:60px;height:60px;border:1px solid rgba(200,16,46,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:8px;animation:pulseBorder 2s infinite; }
+  .loader-torii { font-size:28px; }
+  .loader-logo { font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:300;letter-spacing:6px;color:var(--text);animation:fadeIn 0.8s forwards; }
+  .loader-logo span { color:var(--red); }
+  .loader-bar { width:200px;height:1px;background:rgba(200,16,46,0.15);position:relative;overflow:hidden; }
+  .loader-bar-fill { position:absolute;top:0;left:0;height:100%;background:var(--red);animation:loaderFill 1.8s cubic-bezier(0.23,1,0.32,1) forwards; }
+  @keyframes pulseBorder { 0%,100%{box-shadow:0 0 0 0 rgba(200,16,46,0.3)}50%{box-shadow:0 0 0 10px rgba(200,16,46,0)} }
+
+  /* ── NOTIFICATION ── */
+  .notification { position:fixed;bottom:40px;right:40px;background:var(--red);color:#fff;padding:16px 28px;font-size:13px;font-weight:500;letter-spacing:0.5px;z-index:500;transform:translateY(100px);opacity:0;transition:all 0.5s cubic-bezier(0.23,1,0.32,1);max-width:320px; }
+  .notification.show { transform:none;opacity:1; }
+
+  /* ── REVEAL ── */
+  .reveal { opacity:0;transform:translateY(40px);transition:all 0.9s cubic-bezier(0.23,1,0.32,1); }
+  .reveal.visible { opacity:1;transform:none; }
+
+  /* ── DIVIDER ── */
+  .red-divider { height:1px;background:linear-gradient(to right,transparent,var(--red) 30%,var(--red) 70%,transparent);opacity:0.35;margin:0; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp  { to{opacity:1;transform:none} }
+  @keyframes fadeIn  { to{opacity:1} }
+  @keyframes scrollPulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+  @keyframes marqueeLeft { from{transform:translateX(0)}to{transform:translateX(-50%)} }
+  @keyframes loaderFill  { from{width:0}to{width:100%} }
+
+  /* ── MOBILE ── */
+  @media(max-width:768px){
+    nav{padding:20px 24px}nav.scrolled{padding:14px 24px}.nav-links{display:none}
+    .hero{height:88vh}.hero-title{font-size:clamp(42px,13vw,74px)}.hero-sub{font-size:14px;line-height:1.7}
+    .hero-actions{flex-direction:column;gap:12px}
+    .slide-number{font-size:78px;top:-30px}.slide-name{font-size:clamp(28px,8vw,44px)}
+    .slide-stats{gap:16px;flex-wrap:wrap}.slide-desc{font-size:14px;line-height:1.7}
+    .testimonial-card{width:86vw;padding:30px}
+    .villas-grid{grid-template-columns:1fr}.villa-card:first-child{grid-column:span 1}
+    .experience-grid,.stats-section,.footer-grid{grid-template-columns:1fr;gap:60px}
+    .form-row{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr 1fr}
+    .slide-content{padding:0 6vw;max-width:none}
+    .villas-section,.experience-section,.testimonials-section,.stats-section{padding:80px 5vw}
+  }
+  @media(max-width:520px){
+    body{cursor:auto}.cursor,.cursor-follower{display:none}
+    .hero{height:82vh}.hero-kanji{letter-spacing:6px}.hero-eyebrow{letter-spacing:3px}
+    .stats-text h2,.section-title{font-size:clamp(30px,9vw,44px)}
+    .footer-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<div class="loader" id="loader">
+  <div class="loader-circle"><span class="loader-torii">⛩</span></div>
+  <div class="loader-logo">Vườn<span>Vua</span></div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-follower" id="cursorFollower"></div>
+<div class="notification" id="notification"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="logo">
+    <img src="assets/nhat-linh-logo.png" alt="Nhật Linh Villa logo">
+    <span>
+      <strong>NHẬT LINH</strong>
+      <span class="logo-ja">VILLA · LUXURY STAY</span>
+    </span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#services">Dịch vụ</a></li>
+    <li><a href="#experience">Trải nghiệm</a></li>
+    <li><a href="booking.html">Đặt phòng</a></li>
+    <li><a href="#contact">Liên hệ</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="theme-switch" id="themeSwitch" aria-label="Toggle theme">
+      <div class="theme-switch-thumb"><span id="themeIcon">🌙</span></div>
+    </button>
+    <button class="nav-cta" onclick="window.location.href='booking.html'">Đặt ngay</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-stripe"></div>
+  <div class="hero-content">
+    <span class="hero-kanji">美しいベトナム</span>
+    <p class="hero-eyebrow">Nghỉ Dưỡng Cao Cấp Việt Nam</p>
+    <h1 class="hero-title">Nơi <em>Thiên Nhiên</em><br>Chạm Đến Linh Hồn</h1>
+    <p class="hero-sub">Tận hưởng hệ sinh thái nghỉ dưỡng “All‑in‑One” tại Vườn Vua —<br>khoáng nóng Onsen, bể bơi, thể thao, ẩm thực & giải trí đỉnh cao</p>
+    <div class="hero-actions">
+      <a href="#services" class="btn-primary">Khám Phá Dịch Vụ</a>
+      <a href="booking.html" class="btn-ghost">Đặt Phòng Ngay</a>
+    </div>
+  </div>
+  <div class="scroll-hint"><span>Cuộn xuống</span><div class="scroll-line"></div></div>
+</section>
+
+<div class="red-divider"></div>
+
+<!-- STICKY SCROLL -->
+<div class="sticky-wrapper" id="stickyWrapper">
+  <div class="sticky-inner">
+    <div class="sticky-slides">
+
+      <div class="slide" id="slide-0">
+        <div class="slide-bg" style="background-image:url('assets/onsen.jpg')"></div>
+        <div class="slide-overlay"></div>
+        <div class="slide-bar"></div>
+        <div class="slide-number">01</div>
+        <div class="slide-content">
+          <div class="slide-tag">Khoáng nóng · 癒し</div>
+          <h2 class="slide-name">Japanese Onsen</h2>
+          <div class="slide-loc">📍 King Garden Onsen · Vườn Vua</div>
+          <p class="slide-desc">Đắm mình trong dòng khoáng nóng thư giãn, không gian xanh mát và trải nghiệm wellness trọn vẹn cho cả gia đình.</p>
+          <div class="slide-stats">
+            <div><div class="s-val">40°C</div><div class="s-lbl">Khoáng nóng</div></div>
+            <div><div class="s-val">Zen</div><div class="s-lbl">Thư giãn</div></div>
+            <div><div class="s-val">Spa</div><div class="s-lbl">Wellness</div></div>
+            <div><div class="s-val">Family</div><div class="s-lbl">Cho mọi lứa tuổi</div></div>
+          </div>
+          <div class="slide-price">Trải nghiệm <span>khoáng nóng · onsen</span></div>
+          <a href="#services" class="btn-primary">Xem Tiện Ích</a>
+        </div>
+        <div class="slide-dots" id="slideDots"></div>
+      </div>
+
+      <div class="slide" id="slide-1">
+        <div class="slide-bg" style="background-image:url('assets/pool.png')"></div>
+        <div class="slide-overlay"></div>
+        <div class="slide-bar"></div>
+        <div class="slide-number">02</div>
+        <div class="slide-content">
+          <div class="slide-tag">Giải nhiệt · Chill</div>
+          <h2 class="slide-name">Hồ Bơi</h2>
+          <div class="slide-loc">📍 Trung tâm resort</div>
+          <p class="slide-desc">Bơi lội thư thái, check‑in cảnh quan xanh mát và tận hưởng khoảnh khắc hoàng hôn giữa thiên nhiên.</p>
+          <div class="slide-stats">
+            <div><div class="s-val">View</div><div class="s-lbl">Thiên nhiên</div></div>
+            <div><div class="s-val">Chill</div><div class="s-lbl">Thư giãn</div></div>
+            <div><div class="s-val">Photo</div><div class="s-lbl">Check‑in</div></div>
+            <div><div class="s-val">All day</div><div class="s-lbl">Tận hưởng</div></div>
+          </div>
+          <div class="slide-price">Trải nghiệm <span>bơi lội · thư giãn</span></div>
+          <a href="#services" class="btn-primary">Xem Tiện Ích</a>
+        </div>
+      </div>
+
+      <div class="slide" id="slide-2">
+        <div class="slide-bg" style="background-image:url('assets/tennis.jpg')"></div>
+        <div class="slide-overlay"></div>
+        <div class="slide-bar"></div>
+        <div class="slide-number">03</div>
+      
+        <div class="slide-content">
+          <div class="slide-tag">Thể thao · Sport</div>
+          <h2 class="slide-name">Sân Tennis</h2>
+          <div class="slide-loc">📍 Tiêu chuẩn quốc tế</div>
+      
+          <p class="slide-desc">
+            Trải nghiệm sân tennis chuyên nghiệp, phù hợp cho luyện tập và thi đấu.
+          </p>
+      
+          <div class="slide-stats">
+            <div><div class="s-val">Pro</div><div class="s-lbl">Tiêu chuẩn</div></div>
+            <div><div class="s-val">Match</div><div class="s-lbl">Thi đấu</div></div>
+            <div><div class="s-val">Train</div><div class="s-lbl">Luyện tập</div></div>
+            <div><div class="s-val">Day</div><div class="s-lbl">All day</div></div>
+          </div>
+      
+          <a href="#services" class="btn-primary">Xem Tiện Ích</a>
+        </div>
+      </div>
+
+      <div class="slide" id="slide-3">
+        <div class="slide-bg" style="background-image:url('assets/pickleball.jpg')"></div>
+        <div class="slide-overlay"></div>
+        <div class="slide-bar"></div>
+        <div class="slide-number">04</div>
+      
+        <div class="slide-content">
+          <div class="slide-tag">Thể thao · Sport</div>
+          <h2 class="slide-name">Sân Pickleball</h2>
+          <div class="slide-loc">📍 Xu hướng mới</div>
+      
+          <p class="slide-desc">
+            Bộ môn kết hợp giữa tennis và cầu lông, dễ chơi và cực kỳ gây nghiện.
+          </p>
+      
+          <div class="slide-stats">
+            <div><div class="s-val">Fun</div><div class="s-lbl">Giải trí</div></div>
+            <div><div class="s-val">Easy</div><div class="s-lbl">Dễ chơi</div></div>
+            <div><div class="s-val">Group</div><div class="s-lbl">Bạn bè</div></div>
+            <div><div class="s-val">Trend</div><div class="s-lbl">Hot</div></div>
+          </div>
+      
+          <a href="#services" class="btn-primary">Xem Tiện Ích</a>
+        </div>
+      </div>
+
+      <div class="slide" id="slide-4">
+        <div class="slide-bg" style="background-image:url('assets/basketball.jpg')"></div>
+        <div class="slide-overlay"></div>
+        <div class="slide-bar"></div>
+        <div class="slide-number">05</div>
+      
+        <div class="slide-content">
+          <div class="slide-tag">Thể thao · Sport</div>
+          <h2 class="slide-name">Sân Bóng Rổ</h2>
+          <div class="slide-loc">📍 Sôi động</div>
+      
+          <p class="slide-desc">
+            Không gian lý tưởng cho hoạt động nhóm, thi đấu và giải trí năng động.
+          </p>
+      
+          <div class="slide-stats">
+            <div><div class="s-val">Team</div><div class="s-lbl">Đồng đội</div></div>
+            <div><div class="s-val">Fast</div><div class="s-lbl">Nhanh</div></div>
+            <div><div class="s-val">Energy</div><div class="s-lbl">Năng lượng</div></div>
+            <div><div class="s-val">Play</div><div class="s-lbl">Giải trí</div></div>
+          </div>
+      
+          <a href="#services" class="btn-primary">Xem Tiện Ích</a>
+        </div>
+      </div>
+
+      <div class="slide" id="slide-5">
+        <div class="slide-bg" style="background-image:url('assets/restaurant.jpg')"></div>
+        <div class="slide-overlay"></div>
+        <div class="slide-bar"></div>
+        <div class="slide-number">04</div>
+        <div class="slide-content">
+          <div class="slide-tag">Ẩm thực · 料理</div>
+          <h2 class="slide-name">Nhà Hàng</h2>
+          <div class="slide-loc">📍 Buffet · À la carte</div>
+          <p class="slide-desc">Thực đơn đa dạng Á‑Âu, không gian sang trọng và góc view đẹp — lý tưởng cho gia đình & hội nhóm.</p>
+          <div class="slide-stats">
+            <div><div class="s-val">Á‑Âu</div><div class="s-lbl">Đa dạng</div></div>
+            <div><div class="s-val">Buffet</div><div class="s-lbl">Sẵn sàng</div></div>
+            <div><div class="s-val">View</div><div class="s-lbl">Check‑in</div></div>
+            <div><div class="s-val">Group</div><div class="s-lbl">Hội nhóm</div></div>
+          </div>
+          <div class="slide-price">Trải nghiệm <span>ẩm thực · thưởng vị</span></div>
+          <a href="#services" class="btn-primary">Xem Tiện Ích</a>
+        </div>
+      </div>
+
+      <div class="slide" id="slide-6">
+        <div class="slide-bg" style="background-image:url('assets/karaoke.jpg')"></div>
+        <div class="slide-overlay"></div>
+        <div class="slide-bar"></div>
+        <div class="slide-number">05</div>
+        <div class="slide-content">
+          <div class="slide-tag">Giải trí · Night</div>
+          <h2 class="slide-name">Karaoke</h2>
+          <div class="slide-loc">📍 Không gian riêng tư</div>
+          <p class="slide-desc">Quẩy hết mình cùng bạn bè, tận hưởng âm nhạc và những khoảnh khắc đáng nhớ trong kỳ nghỉ.</p>
+          <div class="slide-stats">
+            <div><div class="s-val">Party</div><div class="s-lbl">Sôi động</div></div>
+            <div><div class="s-val">Sound</div><div class="s-lbl">Âm thanh</div></div>
+            <div><div class="s-val">Private</div><div class="s-lbl">Riêng tư</div></div>
+            <div><div class="s-val">Fun</div><div class="s-lbl">Kết nối</div></div>
+          </div>
+          <div class="slide-price">Trải nghiệm <span>karaoke · giải trí</span></div>
+          <a href="#services" class="btn-primary">Xem Tiện Ích</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="red-divider"></div>
+
+<!-- MARQUEE -->
+<div class="text-scroll-section">
+  <div class="big-text-line dim" id="marquee1">美 &nbsp;&nbsp; Biển &nbsp;&nbsp; 山 &nbsp;&nbsp; Núi &nbsp;&nbsp; 島 &nbsp;&nbsp; Đảo &nbsp;&nbsp; 森 &nbsp;&nbsp; <span>Rừng</span> &nbsp;&nbsp; 美 &nbsp;&nbsp; Biển &nbsp;&nbsp; 山 &nbsp;&nbsp; Núi &nbsp;&nbsp; 島 &nbsp;&nbsp; Đảo &nbsp;&nbsp; 森 &nbsp;&nbsp; <span>Rừng</span> &nbsp;&nbsp;</div>
+  <div class="big-text-line acc" id="marquee2" style="direction:rtl">ダナン &nbsp;&nbsp; Đà Nẵng &nbsp;&nbsp; <span>Hội An</span> &nbsp;&nbsp; ダラット &nbsp;&nbsp; Đà Lạt &nbsp;&nbsp; サパ &nbsp;&nbsp; Sa Pa &nbsp;&nbsp; ダナン &nbsp;&nbsp; Đà Nẵng &nbsp;&nbsp; <span>Hội An</span> &nbsp;&nbsp; ダラット &nbsp;&nbsp; Đà Lạt &nbsp;&nbsp; サパ &nbsp;&nbsp; Sa Pa &nbsp;&nbsp;</div>
+</div>
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="stats-text">
+    <h2>Hơn một thập kỷ mang đến những <em>kỳ nghỉ không thể quên</em></h2>
+    <p>VillaViet ra đời từ tình yêu với vẻ đẹp đất nước Việt Nam. Chúng tôi không chỉ cho thuê không gian — chúng tôi kiến tạo ký ức, kết nối con người với thiên nhiên và văn hóa bản địa theo cách sâu sắc và chân thực nhất.</p>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="stat-box-val">48+</div><div class="stat-box-lbl">Villa độc quyền</div></div>
+    <div class="stat-box"><div class="stat-box-val">12K+</div><div class="stat-box-lbl">Lượt đặt phòng</div></div>
+    <div class="stat-box"><div class="stat-box-val">4.9</div><div class="stat-box-lbl">Điểm đánh giá TB</div></div>
+    <div class="stat-box"><div class="stat-box-val">18</div><div class="stat-box-lbl">Tỉnh thành</div></div>
+  </div>
+</section>
+
+<div class="red-divider"></div>
+
+<!-- SERVICES GRID -->
+<section class="villas-section" id="services">
+  <div class="section-header reveal">
+    <span class="section-eyebrow">Tiện ích · サービス</span>
+    <h2 class="section-title">Tất Cả <em>Dịch Vụ</em></h2>
+  </div>
+  <div class="villas-grid" id="servicesGrid"></div>
+</section>
+
+<!-- EXPERIENCE -->
+<section class="experience-section" id="experience">
+  <div class="section-header reveal">
+    <span class="section-eyebrow">Tại sao chọn chúng tôi · 選ぶ理由</span>
+    <h2 class="section-title">Trải Nghiệm <em>Hoàn Hảo</em></h2>
+  </div>
+  <div class="experience-grid">
+    <div class="experience-item">
+      <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&q=80" class="exp-img" alt="">
+      <span class="exp-num">01 — 建築</span>
+      <h3 class="exp-title">Kiến Trúc Đặc Sắc</h3>
+      <p class="exp-desc">Mỗi villa là một công trình nghệ thuật, hòa quyện giữa kiến trúc Đông Nam Á truyền thống và thiết kế đương đại. Không gian thở — không gian sống.</p>
+    </div>
+    <div class="experience-item">
+      <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600&q=80" class="exp-img" alt="">
+      <span class="exp-num">02 — サービス</span>
+      <h3 class="exp-title">Dịch Vụ Đẳng Cấp</h3>
+      <p class="exp-desc">Đội ngũ housekeeper và concierge riêng túc trực 24/7. Từ bữa sáng được đặt trước đến tour trải nghiệm địa phương — mọi chi tiết đều được chăm chút.</p>
+    </div>
+    <div class="experience-item">
+      <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80" class="exp-img" alt="">
+      <span class="exp-num">03 — 料理</span>
+      <h3 class="exp-title">Ẩm Thực Độc Đáo</h3>
+      <p class="exp-desc">Đầu bếp riêng theo yêu cầu, thực đơn đặc sản địa phương tươi ngon nhất. Bữa tối dưới ánh sao — trải nghiệm mà nhà hàng nào cũng không thể sánh.</p>
+    </div>
+    <div class="experience-item">
+      <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600&q=80" class="exp-img" alt="">
+      <span class="exp-num">04 — 冒険</span>
+      <h3 class="exp-title">Khám Phá Địa Phương</h3>
+      <p class="exp-desc">Chương trình trekking, kayaking, tour làng nghề, lễ hội văn hóa. Chúng tôi kết nối bạn với con người và nhịp sống Việt Nam một cách chân thực nhất.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials-section">
+  <div class="section-header reveal">
+    <span class="section-eyebrow">Khách hàng nói gì · お客様の声</span>
+    <h2 class="section-title">Ký Ức <em>Mãi Mãi</em></h2>
+  </div>
+  <div class="testimonials-track" id="testimonialsTrack"></div>
+</section>
+
+<div class="red-divider"></div>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo"><img src="assets/nhat-linh-logo.png" alt="Nhật Linh Villa logo" style="width:160px;max-width:100%;height:auto;"></div>
+      <span class="footer-ja">NHẬT LINH VILLA · PREMIUM STAY</span>
+      <p class="footer-tagline">Cuộc hành trình tuyệt vời nhất bắt đầu từ một địa điểm hoàn hảo. Chúng tôi ở đây để biến giấc mơ nghỉ dưỡng của bạn thành hiện thực.</p>
+      <div class="footer-socials">
+        <a href="#" data-social="facebook" class="social-link" target="_blank" rel="noopener noreferrer">f</a><a href="#" data-social="instagram" class="social-link" target="_blank" rel="noopener noreferrer">ig</a>
+        <a href="#" data-social="youtube" class="social-link" target="_blank" rel="noopener noreferrer">yt</a><a href="#" data-social="linkedin" class="social-link" target="_blank" rel="noopener noreferrer">in</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Điểm đến</h4>
+      <ul class="footer-links">
+        <li><a href="#">Đà Nẵng</a></li><li><a href="#">Hội An</a></li>
+        <li><a href="#">Phú Quốc</a></li><li><a href="#">Đà Lạt</a></li>
+        <li><a href="#">Nha Trang</a></li><li><a href="#">Sa Pa</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Dịch vụ</h4>
+      <ul class="footer-links">
+        <li><a href="#">Villa nghỉ dưỡng</a></li><li><a href="#">Tổ chức sự kiện</a></li>
+        <li><a href="#">Đầu bếp riêng</a></li><li><a href="#">Tour địa phương</a></li>
+        <li><a href="#">Thuê xe</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Liên hệ</h4>
+      <ul class="footer-links">
+        <li><a href="#">📞 1800 1234</a></li><li><a href="#">✉️ hello@villaviet.vn</a></li>
+        <li><a href="#">📍 Hà Nội & TP.HCM</a></li><li><a href="#">Hỗ trợ 24/7</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 VillaViet · ヴィラヴィエト. Tất cả quyền được bảo lưu.</span>
+    <span>Chính sách bảo mật · Điều khoản sử dụng</span>
+  </div>
+</footer>
+
+<script>
+// ── THEME ────────────────────────────────────────────────────────
+const html = document.documentElement;
+let isDark = true;
+document.getElementById('themeSwitch').addEventListener('click', () => {
+  isDark = !isDark;
+  html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
+  showNotification(isDark ? '🌙 Chế độ tối' : '☀️ Chế độ sáng');
+});
+
+// ── INIT ─────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => document.getElementById('loader').classList.add('hidden'), 2400);
+  initCursor(); initNav(); initHeroParallax();
+  initStickyScroll(); initMarquee(); initReveal();
+  initServicesGrid(); initTestimonials();
+  initScrollProgress();
+});
+
+// ── CURSOR ───────────────────────────────────────────────────────
+function initCursor() {
+  const c=document.getElementById('cursor'), f=document.getElementById('cursorFollower');
+  let mx=0,my=0,fx=0,fy=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;c.style.left=mx+'px';c.style.top=my+'px';});
+  (function a(){fx+=(mx-fx)*0.12;fy+=(my-fy)*0.12;f.style.left=fx+'px';f.style.top=fy+'px';requestAnimationFrame(a);})();
+  document.querySelectorAll('a,button,.villa-card').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{f.style.transform='translate(-50%,-50%) scale(2)';f.style.opacity='0.25';});
+    el.addEventListener('mouseleave',()=>{f.style.transform='translate(-50%,-50%) scale(1)';f.style.opacity='0.5';});
+  });
+}
+
+function initNav() {
+  const nav=document.getElementById('nav');
+  window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>80));
+}
+
+function initScrollProgress() {
+  const bar=document.getElementById('scrollProgress');
+  window.addEventListener('scroll',()=>{bar.style.width=(scrollY/(document.body.scrollHeight-innerHeight)*100)+'%';});
+}
+
+function initHeroParallax() {
+  const bg=document.getElementById('heroBg');
+  window.addEventListener('scroll',()=>{bg.style.transform=`scale(1.1) translateY(${scrollY*0.3}px)`;},{passive:true});
+}
+
+function initStickyScroll() {
+  const wrapper=document.getElementById('stickyWrapper');
+  const slides=document.querySelectorAll('.slide');
+  const n=slides.length;
+  const dotsC=document.getElementById('slideDots');
+  slides.forEach((_,i)=>{
+    const d=document.createElement('div'); d.className='dot'+(i===0?' active':'');
+    d.onclick=()=>{const t=wrapper.offsetTop+(i/n)*(wrapper.offsetHeight-innerHeight);scrollTo({top:t,behavior:'smooth'});};
+    dotsC.appendChild(d);
+  });
+  window.addEventListener('scroll',()=>{
+    const rect=wrapper.getBoundingClientRect();
+    const scrolled=-rect.top, wH=wrapper.offsetHeight-innerHeight;
+    if(scrolled<0||scrolled>wH)return;
+    const idx=Math.min(Math.floor(scrolled/wH*n),n-1);
+    slides.forEach((s,i)=>s.classList.toggle('active',i===idx));
+    document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+  });
+  if(slides.length)slides[0].classList.add('active');
+}
+
+function initMarquee() {
+  const m1=document.getElementById('marquee1'),m2=document.getElementById('marquee2');
+  window.addEventListener('scroll',()=>{
+    const s=m1.closest('.text-scroll-section'),rect=s.getBoundingClientRect();
+    const p=(-rect.top)/(rect.height+innerHeight);
+    m1.style.transform=`translateX(${p*-180}px)`;
+    m2.style.transform=`translateX(${p*180}px)`;
+  },{passive:true});
+}
+
+function initReveal() {
+  const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.15});
+  document.querySelectorAll('.reveal,.stat-box,.experience-item').forEach(el=>obs.observe(el));
+}
+
+const servicesData=[
+  {id:"onsen",name:"Japanese Onsen",loc:"King Garden Onsen",meta:"Khoáng nóng · Wellness",tags:["Khoáng nóng","Thư giãn"],img:"assets/onsen.png"},
+  {id:"pool",name:"Hồ Bơi",loc:"Trung tâm resort",meta:"Bơi lội · Check‑in",tags:["Chill","Gia đình"],img:"assets/pool.jpg"},
+  {id:"courts",name:"Sân Thể Thao",loc:"Tennis · Pickleball · Basketball",meta:"Vận động · Team play",tags:["Năng động","Hội nhóm"],img:"assets/courts.jpg"},
+  {id:"restaurant",name:"Nhà Hàng",loc:"Buffet · À la carte",meta:"Ẩm thực · Không gian đẹp",tags:["Á‑Âu","View"],img:"assets/restaurant.jpg"},
+  {id:"karaoke",name:"Karaoke",loc:"Không gian riêng tư",meta:"Giải trí · Kết nối",tags:["Party","Private"],img:"assets/karaoke.jpg"},
+];
+
+function initServicesGrid() {
+  const grid=document.getElementById('servicesGrid');
+  servicesData.forEach(s=>{
+    const card=document.createElement('div'); card.className='villa-card';
+    card.innerHTML=`<div class="villa-img" style="background-image:url('${s.img}')"></div><div class="villa-card-overlay"></div><div class="villa-card-content"><div class="villa-card-tags">${s.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div><div class="villa-card-name">${s.name}</div><div class="villa-card-loc">📍 ${s.loc}</div><div class="villa-card-meta"><div class="villa-price">${s.meta}<small>Dịch vụ</small></div><div class="villa-rating">★ <span>Vườn Vua</span></div></div></div>`;
+    card.addEventListener('click',()=>{
+      window.location.href=`booking.html?service=${encodeURIComponent(s.id)}`;
+    });
+    grid.appendChild(card);
+  });
+}
+
+const testimonialsData=[
+  {name:"Nguyễn Minh Anh",loc:"Hà Nội",text:"Trải nghiệm tuyệt vời nhất trong cuộc đời! Villa Phú Quốc Pearl vượt mọi tưởng tượng. Dịch vụ butler 24/7, bữa sáng view biển... chúng tôi sẽ quay lại!",villa:"Villa Phú Quốc Pearl",avatar:"https://i.pravatar.cc/80?img=1"},
+  {name:"Trần Gia Huy",loc:"TP. Hồ Chí Minh",text:"Khu nghỉ dưỡng là nơi hoàn hảo cho kỳ nghỉ gia đình. Không gian rộng rãi, sạch sẽ, vị trí đắc địa. Con tôi không muốn về nhà!",villa:"Kỳ nghỉ gia đình",avatar:"https://i.pravatar.cc/80?img=3"},
+  {name:"Lê Phương Thảo",loc:"Đà Nẵng",text:"Đặt phòng rất dễ dàng và nhanh chóng. Không gian lưu trú giữ đúng tinh thần cổ kính mà vẫn tiện nghi hiện đại. Recommend 100%!",villa:"Trải nghiệm cổ điển",avatar:"https://i.pravatar.cc/80?img=5"},
+  {name:"Phạm Bảo Châu",loc:"Hải Phòng",text:"Kỳ nghỉ trăng mật đáng nhớ nhất cuộc đời. Hoàng hôn bên hồ bơi vô cực là điều không thể diễn tả bằng lời.",villa:"Kỳ nghỉ trăng mật",avatar:"https://i.pravatar.cc/80?img=7"},
+  {name:"Vũ Thanh Long",loc:"Cần Thơ",text:"Không khí sương mờ, lửa lò sưởi, ly rượu vang cho tôi cảm giác như đang ở Châu Âu. Tuyệt vời!",villa:"Trải nghiệm cao nguyên",avatar:"https://i.pravatar.cc/80?img=9"},
+];
+
+function initTestimonials() {
+  const track=document.getElementById('testimonialsTrack');
+  [...testimonialsData,...testimonialsData].forEach(t=>{
+    const card=document.createElement('div'); card.className='testimonial-card';
+    card.innerHTML=`<div class="testimonial-stars">${'<span class="star">★</span>'.repeat(5)}</div><div class="testimonial-text">${t.text}</div><div class="testimonial-author"><img src="${t.avatar}" class="testimonial-avatar" alt="${t.name}"><div><div class="testimonial-name">${t.name}</div><div class="testimonial-meta">${t.loc} · ${t.villa}</div></div></div>`;
+    track.appendChild(card);
+  });
+}
+
+function showNotification(msg) {
+  const el=document.getElementById('notification');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+function goTo(sel){document.querySelector(sel)?.scrollIntoView({behavior:'smooth'});}
+
+// Put your real social links here.
+const SOCIAL_LINKS = {
+  facebook: '#',
+  instagram: '#',
+  youtube: '#',
+  linkedin: '#',
+};
+document.querySelectorAll('[data-social]').forEach((link) => {
+  const key = link.dataset.social;
+  link.href = SOCIAL_LINKS[key] || '#';
+});
+</script>
+</body>
+</html>
+
+
+
+
