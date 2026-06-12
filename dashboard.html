@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Nhật Linh Villa</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/community.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-left">
+    <a class="brand-link" href="index.html">
+      <img src="assets/nhat-linh-logo.png" alt="Logo">
+      <span><strong>NHẬT LINH</strong>VILLA · DASHBOARD</span>
+    </a>
+  </div>
+  <div class="top-bar-right">
+    <a class="nav-pill" href="forum.html">Xem cộng đồng</a>
+    <button class="theme-switch" id="themeSwitch" aria-label="Đổi giao diện">
+      <div class="theme-switch-thumb"><span id="themeIcon">🌙</span></div>
+    </button>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="page-wrap">
+  <div class="login-wrap">
+    <span class="section-eyebrow">Quản trị · 管理</span>
+    <h1>Đăng nhập</h1>
+    <p>Đăng nhập để viết bài, đăng review và quản lý nội dung cộng đồng — giống Tinhte hay Reddit.</p>
+    <form id="loginForm" class="comment-form">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="loginEmail" placeholder="admin@villaviet.vn" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mật khẩu</label>
+        <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%">Đăng nhập</button>
+      <button type="button" class="btn btn-ghost" id="demoModeBtn" style="width:100%">Dùng chế độ demo (không cần đăng nhập)</button>
+    </form>
+    <p style="margin-top:20px;font-size:12px;color:var(--text3);line-height:1.6">
+      Tạo tài khoản admin trong Supabase → Authentication → Users, rồi chạy file <code>supabase-setup.sql</code>.
+    </p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashScreen" style="display:none">
+  <div class="dash-layout">
+    <aside class="dash-sidebar">
+      <div class="dash-user">
+        <div class="dash-user-name" id="dashUserName">—</div>
+        <div class="dash-user-email" id="dashUserEmail">—</div>
+      </div>
+      <ul class="dash-nav">
+        <li><a href="#" data-panel="write" class="active">✏️ Viết bài mới</a></li>
+        <li><a href="#" data-panel="published">📋 Đã đăng</a></li>
+        <li><a href="#" data-panel="drafts">📝 Bản nháp</a></li>
+        <li><a href="forum.html">🌐 Xem cộng đồng</a></li>
+        <li><a href="#" id="logoutBtn" style="margin-top:auto;color:var(--text3)">Đăng xuất</a></li>
+      </ul>
+    </aside>
+
+    <main class="dash-main">
+      <!-- WRITE -->
+      <div class="dash-panel active" id="panel-write">
+        <div class="page-header">
+          <span class="section-eyebrow">Viết bài · 投稿</span>
+          <h1 class="page-title">Tạo <em>Bài Viết</em></h1>
+        </div>
+        <form id="postForm" class="comment-form">
+          <input type="hidden" id="editPostId" value="">
+          <div class="form-group">
+            <label class="form-label">Tiêu đề</label>
+            <input type="text" class="form-input" id="postTitle" placeholder="VD: Review Onsen cuối tuần tại Vườn Vua" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Loại bài</label>
+              <select class="form-select" id="postCategory">
+                <option value="discussion">Thảo luận</option>
+                <option value="review">Đánh giá</option>
+                <option value="blog">Blog</option>
+                <option value="news">Tin tức</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tags (phẩy)</label>
+              <input type="text" class="form-input" id="postTags" placeholder="onsen, gia đình, review">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ảnh bìa (URL)</label>
+            <input type="url" class="form-input" id="postCover" placeholder="assets/onsen.jpg">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nội dung (Markdown)</label>
+            <div class="editor-toolbar">
+              <button type="button" data-md="**" data-md2="**">B</button>
+              <button type="button" data-md="*" data-md2="*">I</button>
+              <button type="button" data-md="## ">H2</button>
+              <button type="button" data-md="- ">List</button>
+              <button type="button" data-md="> ">Quote</button>
+              <button type="button" data-md="`" data-md2="`">Code</button>
+              <button type="button" id="togglePreview">👁 Xem trước</button>
+            </div>
+            <textarea class="form-textarea tall" id="postContent" placeholder="Viết nội dung bài viết của bạn…&#10;&#10;## Trải nghiệm&#10;Khoáng nóng 40°C, không gian xanh mát…" required></textarea>
+            <div class="editor-preview" id="editorPreview"></div>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button type="button" class="btn btn-ghost" id="saveDraftBtn">Lưu nháp</button>
+            <button type="button" class="btn btn-primary" id="publishBtn">Đăng bài</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- PUBLISHED -->
+      <div class="dash-panel" id="panel-published">
+        <div class="page-header">
+          <span class="section-eyebrow">Đã đăng</span>
+          <h1 class="page-title">Bài <em>Đã Xuất Bản</em></h1>
+        </div>
+        <div id="publishedList"></div>
+      </div>
+
+      <!-- DRAFTS -->
+      <div class="dash-panel" id="panel-drafts">
+        <div class="page-header">
+          <span class="section-eyebrow">Bản nháp</span>
+          <h1 class="page-title">Bài <em>Nháp</em></h1>
+        </div>
+        <div id="draftsList"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="notification" id="notification"></div>
+
+<script src="js/supabase.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/posts.js"></script>
+<script>
+let currentUser = null;
+let isDemo = false;
+
+document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
+  bindNav();
+  bindEditor();
+  bindLogin();
+  checkSession();
+});
+
+function bindNav() {
+  document.querySelectorAll('.dash-nav a[data-panel]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const panel = link.dataset.panel;
+      document.querySelectorAll('.dash-nav a[data-panel]').forEach((a) => a.classList.remove('active'));
+      link.classList.add('active');
+      document.querySelectorAll('.dash-panel').forEach((p) => p.classList.remove('active'));
+      document.getElementById(`panel-${panel}`).classList.add('active');
+      if (panel === 'published' || panel === 'drafts') loadMyPosts();
+    });
+  });
+}
+
+function bindEditor() {
+  document.querySelectorAll('.editor-toolbar button[data-md]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const ta = document.getElementById('postContent');
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const sel = ta.value.slice(start, end);
+      const wrap = btn.dataset.md;
+      const wrap2 = btn.dataset.md2 || '';
+      const insert = wrap2 ? `${wrap}${sel || 'text'}${wrap2}` : `${wrap}${sel}`;
+      ta.value = ta.value.slice(0, start) + insert + ta.value.slice(end);
+      ta.focus();
+    });
+  });
+
+  document.getElementById('togglePreview').addEventListener('click', () => {
+    const prev = document.getElementById('editorPreview');
+    const content = document.getElementById('postContent').value;
+    prev.innerHTML = renderMarkdown(content);
+    prev.classList.toggle('show');
+  });
+
+  document.getElementById('saveDraftBtn').addEventListener('click', () => savePost('draft'));
+  document.getElementById('publishBtn').addEventListener('click', () => savePost('published'));
+}
+
+function bindLogin() {
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    try {
+      const data = await supabaseAuth('token?grant_type=password', { email, password });
+      storeSession({ access_token: data.access_token, user: data.user });
+      currentUser = data.user;
+      isDemo = false;
+      showDashboard();
+      showNotification('Đăng nhập thành công');
+    } catch (err) {
+      showNotification('Đăng nhập thất bại: ' + err.message);
+    }
+  });
+
+  document.getElementById('demoModeBtn').addEventListener('click', () => {
+    isDemo = true;
+    currentUser = { id: 'demo-admin', email: 'demo@local', user_metadata: { full_name: 'Demo Admin' } };
+    showDashboard();
+    showNotification('Chế độ demo — bài viết lưu trên trình duyệt');
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    storeSession(null);
+    currentUser = null;
+    isDemo = false;
+    document.getElementById('dashScreen').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'block';
+    showNotification('Đã đăng xuất');
+  });
+}
+
+function checkSession() {
+  const session = getStoredSession();
+  if (session?.user) {
+    currentUser = session.user;
+    showDashboard();
+  }
+}
+
+function showDashboard() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('dashScreen').style.display = 'block';
+  const name = currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0] || 'Admin';
+  document.getElementById('dashUserName').textContent = name;
+  document.getElementById('dashUserEmail').textContent = currentUser?.email || '';
+}
+
+function getAuthorName() {
+  return currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0] || 'Admin';
+}
+
+async function savePost(status) {
+  const title = document.getElementById('postTitle').value.trim();
+  const content = document.getElementById('postContent').value.trim();
+  const category = document.getElementById('postCategory').value;
+  const tags = document.getElementById('postTags').value.split(',').map((t) => t.trim()).filter(Boolean);
+  const cover_image = document.getElementById('postCover').value.trim() || null;
+  const editId = document.getElementById('editPostId').value;
+
+  if (!title || !content) {
+    showNotification('Vui lòng nhập tiêu đề và nội dung');
+    return;
+  }
+
+  const payload = {
+    title,
+    content,
+    excerpt: excerptFromContent(content),
+    category,
+    tags,
+    cover_image,
+    status,
+    author_id: String(currentUser.id),
+    author_name: getAuthorName(),
+    published_at: status === 'published' ? new Date().toISOString() : null,
+  };
+
+  try {
+    if (editId) {
+      await updatePost(editId, payload);
+      showNotification(status === 'published' ? 'Đã cập nhật & đăng bài' : 'Đã lưu nháp');
+    } else {
+      await createPost({ ...payload, slug: slugify(title) });
+      showNotification(status === 'published' ? 'Đăng bài thành công!' : 'Đã lưu nháp');
+    }
+    resetForm();
+    loadMyPosts();
+  } catch (err) {
+    showNotification('Lỗi: ' + err.message);
+  }
+}
+
+function resetForm() {
+  document.getElementById('editPostId').value = '';
+  document.getElementById('postTitle').value = '';
+  document.getElementById('postContent').value = '';
+  document.getElementById('postTags').value = '';
+  document.getElementById('postCover').value = '';
+  document.getElementById('postCategory').value = 'discussion';
+  document.getElementById('editorPreview').classList.remove('show');
+}
+
+async function loadMyPosts() {
+  const posts = await fetchMyPosts(currentUser.id);
+  renderPostTable('publishedList', posts.filter((p) => p.status === 'published'));
+  renderPostTable('draftsList', posts.filter((p) => p.status === 'draft'));
+}
+
+function renderPostTable(containerId, posts) {
+  const el = document.getElementById(containerId);
+  if (!posts.length) {
+    el.innerHTML = '<div class="empty-state">Chưa có bài viết nào.</div>';
+    return;
+  }
+  el.innerHTML = `
+    <table class="posts-table">
+      <thead><tr><th>Tiêu đề</th><th>Loại</th><th>Trạng thái</th><th>Ngày</th><th></th></tr></thead>
+      <tbody>
+        ${posts.map((p) => `
+          <tr>
+            <td><a href="post.html?slug=${encodeURIComponent(p.slug)}" target="_blank">${p.title}</a></td>
+            <td>${POST_CATEGORIES[p.category]?.label || p.category}</td>
+            <td><span class="status-badge status-${p.status}">${p.status}</span></td>
+            <td>${timeAgo(p.updated_at || p.created_at)}</td>
+            <td style="white-space:nowrap">
+              <button class="btn btn-ghost btn-sm" onclick="editPost('${p.id}')">Sửa</button>
+              <button class="btn btn-danger btn-sm" onclick="removePost('${p.id}')">Xóa</button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function editPost(id) {
+  const posts = await fetchMyPosts(currentUser.id);
+  const post = posts.find((p) => p.id === id);
+  if (!post) return;
+  document.getElementById('editPostId').value = post.id;
+  document.getElementById('postTitle').value = post.title;
+  document.getElementById('postContent').value = post.content;
+  document.getElementById('postTags').value = (post.tags || []).join(', ');
+  document.getElementById('postCover').value = post.cover_image || '';
+  document.getElementById('postCategory').value = post.category || 'discussion';
+  document.querySelectorAll('.dash-nav a[data-panel]').forEach((a) => a.classList.remove('active'));
+  document.querySelector('[data-panel="write"]').classList.add('active');
+  document.querySelectorAll('.dash-panel').forEach((p) => p.classList.remove('active'));
+  document.getElementById('panel-write').classList.add('active');
+  showNotification('Đang chỉnh sửa bài viết');
+}
+
+async function removePost(id) {
+  if (!confirm('Xóa bài viết này?')) return;
+  await deletePost(id);
+  loadMyPosts();
+  showNotification('Đã xóa bài viết');
+}
+</script>
+</body>
+</html>
