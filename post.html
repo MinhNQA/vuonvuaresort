@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài viết — Nhật Linh Villa</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/community.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-left">
+    <a class="brand-link" href="index.html">
+      <img src="assets/nhat-linh-logo.png" alt="Logo">
+      <span><strong>NHẬT LINH</strong>BÀI VIẾT</span>
+    </a>
+    <a class="nav-pill" href="forum.html">← Cộng đồng</a>
+  </div>
+  <div class="top-bar-right">
+    <a class="nav-pill primary" href="dashboard.html">✏️ Viết bài</a>
+    <button class="theme-switch" id="themeSwitch" aria-label="Đổi giao diện">
+      <div class="theme-switch-thumb"><span id="themeIcon">🌙</span></div>
+    </button>
+  </div>
+</div>
+
+<div class="page-wrap">
+  <article class="post-article" id="postArticle">
+    <div class="empty-state">Đang tải bài viết…</div>
+  </article>
+
+  <section class="comments-section" id="comments">
+    <h3>Bình luận</h3>
+    <form class="comment-form" id="commentForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tên của bạn</label>
+          <input type="text" class="form-input" id="commentName" placeholder="Nguyễn Văn A" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bình luận</label>
+        <textarea class="form-textarea" id="commentText" placeholder="Chia sẻ suy nghĩ của bạn…" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Gửi bình luận</button>
+    </form>
+    <div class="comment-list" id="commentList"></div>
+  </section>
+</div>
+
+<div class="notification" id="notification"></div>
+
+<script src="js/supabase.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/posts.js"></script>
+<script>
+let currentPost = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  initTheme();
+  const slug = new URLSearchParams(location.search).get('slug');
+  if (!slug) {
+    document.getElementById('postArticle').innerHTML = '<div class="empty-state">Không tìm thấy bài viết.</div>';
+    return;
+  }
+  currentPost = await fetchPostBySlug(slug);
+  if (!currentPost) {
+    document.getElementById('postArticle').innerHTML = '<div class="empty-state">Bài viết không tồn tại hoặc chưa được đăng.</div>';
+    return;
+  }
+  renderPost(currentPost);
+  loadComments();
+  document.getElementById('commentForm').addEventListener('submit', submitComment);
+});
+
+function renderPost(post) {
+  document.title = `${post.title} — Nhật Linh Villa`;
+  const cat = POST_CATEGORIES[post.category] || POST_CATEGORIES.discussion;
+  const tags = (post.tags || []).map((t) => `<span class="tag-pill">${t}</span>`).join(' ');
+
+  document.getElementById('postArticle').innerHTML = `
+    <div class="feed-meta" style="margin-bottom:16px">
+      <span class="post-flair ${cat.flair}">${cat.label}</span>
+      ${tags}
+      <span class="feed-time">· ${timeAgo(post.published_at || post.created_at)}</span>
+    </div>
+    <h1 class="page-title" style="margin-bottom:20px">${post.title}</h1>
+    <div class="feed-author" style="margin-bottom:28px">
+      <span class="avatar-sm">${getInitials(post.author_name)}</span>
+      <span>${post.author_name}</span>
+      <span style="color:var(--text3)">· ▲ ${post.upvotes || 0}</span>
+    </div>
+    ${post.cover_image ? `<img class="post-cover" src="${post.cover_image}" alt="">` : ''}
+    <div class="post-content">${renderMarkdown(post.content)}</div>
+    <div style="margin-top:32px;padding-top:20px;border-top:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" id="postUpvote">▲ Upvote (<span id="postVoteCount">${post.upvotes || 0}</span>)</button>
+      <a class="btn btn-primary btn-sm" href="booking.html" style="text-decoration:none">Đặt phòng ngay</a>
+    </div>`;
+
+  const upBtn = document.getElementById('postUpvote');
+  if (localStorage.getItem(`vv_voted_${post.id}`)) upBtn.classList.add('voted');
+  upBtn.addEventListener('click', async () => {
+    const count = await upvotePost(post.id);
+    if (count !== null) document.getElementById('postVoteCount').textContent = count;
+  });
+}
+
+async function loadComments() {
+  const comments = await fetchComments(currentPost.id);
+  const list = document.getElementById('commentList');
+  if (!comments.length) {
+    list.innerHTML = '<p style="color:var(--text3);font-size:14px">Chưa có bình luận. Hãy là người đầu tiên!</p>';
+    return;
+  }
+  list.innerHTML = comments.map((c) => `
+    <div class="comment-item">
+      <span class="avatar-sm">${getInitials(c.author_name)}</span>
+      <div>
+        <div class="comment-meta"><strong>${c.author_name}</strong> · ${timeAgo(c.created_at)}</div>
+        <div class="comment-body">${c.content.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
+      </div>
+    </div>`).join('');
+}
+
+async function submitComment(e) {
+  e.preventDefault();
+  const author_name = document.getElementById('commentName').value.trim();
+  const content = document.getElementById('commentText').value.trim();
+  if (!author_name || !content) return;
+  await addComment(currentPost.id, { author_name, content });
+  document.getElementById('commentText').value = '';
+  showNotification('Đã gửi bình luận');
+  loadComments();
+}
+</script>
+</body>
+</html>
