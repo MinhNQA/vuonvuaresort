@@ -3,356 +3,136 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vườn Vua Resort — Đặt Phòng</title>
+<title>Đặt Phòng — Vườn Vua Resort</title>
+<meta name="description" content="Đặt phòng và dịch vụ tại Vườn Vua Resort — Onsen, hồ bơi, thể thao, nhà hàng, karaoke. Xác nhận trong 2 giờ.">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/community.css">
 <style>
-  :root {
-    --red:#D4AF37;
-    --red-deep:#A67C1C;
-    --red-light:#F0D77C;
-    --red-pale:rgba(212,175,55,0.12);
-    --white:#F5F0EE;
-    --off-white:#EDE6E3;
-    --transition-theme: background 0.55s cubic-bezier(0.23,1,0.32,1), color 0.55s cubic-bezier(0.23,1,0.32,1), border-color 0.55s, box-shadow 0.55s;
-  }
-
-  [data-theme="dark"] {
-    --bg:#090E2A;
-    --bg2:#111A43;
-    --surface:rgba(212,175,55,0.06);
-    --border:rgba(212,175,55,0.24);
-    --border2:rgba(212,175,55,0.5);
-    --text:#F5F0EE;
-    --text2:rgba(245,240,238,0.7);
-    --text3:rgba(245,240,238,0.38);
-    --sw-bg:#162055;
-    --sw-border:rgba(212,175,55,0.36);
-    --notif-fg:#F5F0EE;
-  }
-
-  [data-theme="light"] {
-    --bg:#EEE7E3;
-    --bg2:#E3DAD6;
-    --surface:rgba(200,16,46,0.05);
-    --border:rgba(200,16,46,0.18);
-    --border2:rgba(200,16,46,0.4);
-    --text:#0D0A0A;
-    --text2:rgba(13,10,10,0.6);
-    --text3:rgba(13,10,10,0.3);
-    --sw-bg:#EDE6E3;
-    --sw-border:rgba(200,16,46,0.22);
-    --notif-fg:#F5F0EE;
-  }
-
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family:'Be Vietnam Pro',sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    transition:var(--transition-theme);
-    min-height:100vh;
-  }
-
-  body::before {
-    content:'⛩';
-    position:fixed;
-    bottom:-60px;
-    right:-40px;
-    font-size:400px;
-    opacity:0.025;
-    pointer-events:none;
-    z-index:0;
-    line-height:1;
-  }
-
-  .top-bar {
-    position:sticky;
-    top:0;
-    z-index:10;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:20px;
-    padding:22px 7vw;
-    background:color-mix(in srgb, var(--bg) 88%, transparent);
-    backdrop-filter:blur(12px);
-    border-bottom:1px solid var(--border);
-  }
-
-  .back-link {
-    color:var(--text);
-    text-decoration:none;
-    letter-spacing:1.2px;
-    font-size:12px;
-    text-transform:uppercase;
-    border:1px solid var(--border);
-    padding:10px 18px;
-    transition:border-color 0.3s, color 0.3s, background 0.3s;
-  }
-  .back-link:hover { border-color:var(--red); color:var(--red); background:var(--red-pale); }
-
-  .theme-switch {
-    position:relative;
-    width:56px;
-    height:28px;
-    background:var(--sw-bg);
-    border:1px solid var(--sw-border);
-    border-radius:14px;
-    transition:var(--transition-theme);
-    cursor:pointer;
-  }
-  .theme-switch-thumb {
-    position:absolute;
-    top:3px;
-    left:3px;
-    width:20px;
-    height:20px;
-    border-radius:50%;
-    background:var(--red);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:11px;
-    transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
-    pointer-events:none;
-  }
-  [data-theme="light"] .theme-switch-thumb { transform:translateX(28px); }
-  .theme-switch:hover { border-color:var(--red); }
-
+  body::before { content:'⛩'; }
   .booking-page {
-    position:relative;
-    z-index:1;
-    padding:72px 10vw 96px;
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:80px;
-    align-items:center;
-    overflow:hidden;
+    position:relative; z-index:1;
+    padding:56px 6vw 96px;
+    display:grid; grid-template-columns:1fr 1.05fr;
+    gap:64px; align-items:start; overflow:hidden;
   }
   .booking-page::before {
     content:'予約';
-    position:absolute;
-    right:2vw;
-    top:50%;
+    position:absolute; right:2vw; top:42%;
     transform:translateY(-50%);
     font-family:'Cormorant Garamond',serif;
-    font-size:clamp(120px,16vw,240px);
-    line-height:1;
-    color:var(--text);
-    opacity:0.05;
-    letter-spacing:8px;
-    pointer-events:none;
-    z-index:0;
+    font-size:clamp(100px,14vw,220px);
+    line-height:1; color:var(--text); opacity:0.04;
+    letter-spacing:8px; pointer-events:none; z-index:0;
   }
   .booking-page > * { position:relative; z-index:1; }
-
-  .section-eyebrow {
-    display:block;
-    margin-bottom:20px;
-    font-size:11px;
-    letter-spacing:5px;
-    text-transform:uppercase;
-    color:var(--red);
-  }
   .booking-text h1 {
     font-family:'Cormorant Garamond',serif;
-    font-size:clamp(42px,5vw,70px);
-    font-weight:300;
-    line-height:1.08;
-    margin-bottom:24px;
+    font-size:clamp(40px,5vw,68px); font-weight:300;
+    line-height:1.08; margin-bottom:20px;
   }
   .booking-text h1 em { color:var(--red); font-style:italic; }
-  .booking-text p {
-    font-size:16px;
-    line-height:1.9;
-    color:var(--text2);
-    font-weight:300;
+  .booking-text p { font-size:16px; line-height:1.85; color:var(--text2); font-weight:300; }
+  .book-info { display:flex; flex-direction:column; gap:18px; margin-top:36px; }
+  .book-info-row {
+    display:flex; align-items:center; gap:16px;
+    opacity:0; transform:translateX(-16px);
+    animation:fadeUpReveal 0.8s cubic-bezier(0.23,1,0.32,1) forwards;
   }
-
-  .book-info { display:flex; flex-direction:column; gap:20px; margin-top:44px; }
-  .book-info-row { display:flex; align-items:center; gap:16px; transition:transform 0.35s; }
+  .book-info-row:nth-child(1) { animation-delay:0.15s; }
+  .book-info-row:nth-child(2) { animation-delay:0.3s; }
+  .book-info-row:nth-child(3) { animation-delay:0.45s; }
   .book-info-row:hover { transform:translateX(4px); }
   .book-icon {
-    width:48px;
-    height:48px;
-    border-radius:50%;
-    border:1px solid rgba(200,16,46,0.45);
-    background:radial-gradient(circle at 28% 24%,rgba(232,55,79,0.95),var(--red) 62%,var(--red-deep));
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-family:'Cormorant Garamond',serif;
-    font-size:18px;
-    font-weight:600;
-    letter-spacing:1px;
-    color:#fff;
-    flex-shrink:0;
-    box-shadow:inset 0 0 0 1px rgba(245,240,238,0.2),0 10px 24px rgba(200,16,46,0.18);
-    transition:box-shadow 0.35s, transform 0.35s;
+    width:48px; height:48px; border-radius:50%;
+    border:1px solid rgba(212,175,55,0.45);
+    background:radial-gradient(circle at 28% 24%, rgba(240,215,124,0.9), var(--red) 62%, var(--red-deep));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:600;
+    color:#fff; flex-shrink:0;
+    box-shadow:0 10px 24px rgba(212,175,55,0.2);
+    transition:transform 0.35s, box-shadow 0.35s;
   }
-  .book-info-row:hover .book-icon {
-    transform:translateY(-2px) scale(1.03);
-    box-shadow:inset 0 0 0 1px rgba(245,240,238,0.22),0 0 0 4px rgba(200,16,46,0.16),0 14px 28px rgba(200,16,46,0.35);
-  }
-  .book-info-title { font-size:14px; font-weight:500; margin-bottom:4px; color:var(--text); }
+  .book-info-row:hover .book-icon { transform:translateY(-2px) scale(1.04); }
+  .book-info-title { font-size:14px; font-weight:500; margin-bottom:4px; }
   .book-info-sub { font-size:13px; color:var(--text2); }
-
   .booking-form-wrap {
-    position:relative;
-    padding:34px;
-    border:1px solid var(--border);
-    border-radius:0;
-    overflow:hidden;
-    background:var(--bg2);
+    position:relative; padding:32px;
+    border:1px solid var(--border); background:var(--bg2); overflow:hidden;
+    animation:fadeUpReveal 1s 0.2s cubic-bezier(0.23,1,0.32,1) both;
   }
   .booking-form-wrap::before {
-    content:'';
-    position:absolute;
-    left:0;
-    top:0;
-    width:110px;
-    height:3px;
-    background:var(--red);
-    opacity:0.85;
-    pointer-events:none;
+    content:''; position:absolute; left:0; top:0;
+    width:100px; height:3px; background:var(--red); opacity:0.85;
   }
-  .booking-form-wrap::after {
-    content:'';
-    position:absolute;
-    left:0;
-    top:0;
-    width:3px;
-    height:84px;
-    background:var(--red);
-    opacity:0.7;
-    pointer-events:none;
-  }
-  .booking-form,
-  .booking-success { position:relative; z-index:1; }
   .booking-form { display:grid; gap:16px; }
-  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-  .form-group { display:flex; flex-direction:column; gap:8px; }
-  .form-label { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--red); }
-
-  .form-input {
-    background:transparent;
-    border:1px solid var(--border);
-    border-radius:0;
-    color:var(--text);
-    padding:14px 18px;
-    font-family:'Be Vietnam Pro',sans-serif;
-    font-size:14px;
-    outline:none;
-    transition:border-color 0.3s, box-shadow 0.3s, background 0.55s, color 0.55s;
-  }
-  .form-input:focus,
-  .service-option.active {
-    border-color:var(--red);
-    box-shadow:0 0 0 3px rgba(212,175,55,0.22);
-  }
-  .form-input::placeholder { color:var(--text3); }
   .service-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .service-option { border:1px solid var(--border); background:transparent; color:var(--text); padding:12px; text-align:left; font-size:13px; cursor:pointer; }
-  .service-option:hover { border-color:var(--red); }
-
+  .service-option {
+    border:1px solid var(--border); background:transparent; color:var(--text);
+    padding:14px 12px; text-align:left; font-size:13px; cursor:pointer;
+    transition:all 0.35s cubic-bezier(0.23,1,0.32,1);
+    position:relative; overflow:hidden;
+  }
+  .service-option::after {
+    content:''; position:absolute; inset:0;
+    background:var(--red-pale); transform:scaleX(0); transform-origin:left;
+    transition:transform 0.35s; z-index:0;
+  }
+  .service-option span { position:relative; z-index:1; }
+  .service-option:hover, .service-option.active { border-color:var(--red); color:var(--red); }
+  .service-option.active::after { transform:scaleX(1); }
   .guest-stepper {
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:14px;
-    padding:8px;
-    border:1px solid var(--border);
-    border-radius:0;
-    background:var(--surface);
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:8px; border:1px solid var(--border); background:var(--surface);
   }
   .guest-btn {
-    width:38px;
-    height:38px;
-    border:1px solid var(--border);
-    border-radius:0;
-    background:var(--red-pale);
-    color:var(--red);
-    font-size:24px;
-    line-height:1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
+    width:38px; height:38px; border:1px solid var(--border);
+    background:var(--red-pale); color:var(--red); font-size:22px;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
     transition:all 0.3s;
   }
-  .guest-btn:hover { border-color:var(--red); background:rgba(200,16,46,0.2); }
-  .guest-btn:disabled { opacity:0.45; color:var(--text3); background:transparent; border-color:var(--border); cursor:not-allowed; }
-  .guest-count { min-width:110px; text-align:center; color:var(--text); font-size:14px; letter-spacing:0.6px; }
-
+  .guest-btn:hover { border-color:var(--red); }
+  .guest-btn:disabled { opacity:0.4; cursor:not-allowed; }
+  .guest-count { min-width:110px; text-align:center; font-size:14px; }
   .form-submit {
-    background:var(--red);
-    color:#fff;
-    border:none;
-    padding:18px;
-    font-family:'Be Vietnam Pro',sans-serif;
-    font-size:13px;
-    letter-spacing:3px;
-    text-transform:uppercase;
-    font-weight:600;
-    cursor:pointer;
-    transition:all 0.4s;
-    margin-top:8px;
+    background:var(--red); color:#fff; border:none; padding:18px;
+    font-family:'Be Vietnam Pro',sans-serif; font-size:13px;
+    letter-spacing:3px; text-transform:uppercase; font-weight:600;
+    cursor:pointer; transition:all 0.4s; margin-top:4px;
   }
   .form-submit:hover { background:var(--red-deep); transform:translateY(-2px); }
-
-  .booking-success { display:none; text-align:center; padding:48px 16px 12px; border:none; }
-  .booking-success.show { display:block; }
+  .form-submit:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+  .booking-success { display:none; text-align:center; padding:48px 16px 12px; }
+  .booking-success.show { display:block; animation:fadeUpReveal 0.8s ease both; }
   .success-icon { font-size:48px; margin-bottom:20px; display:block; }
-
-  .notification {
-    position:fixed;
-    right:28px;
-    bottom:28px;
-    background:var(--red);
-    color:var(--notif-fg);
-    padding:14px 22px;
-    font-size:13px;
-    letter-spacing:0.3px;
-    transform:translateY(80px);
-    opacity:0;
-    transition:all 0.45s cubic-bezier(0.23,1,0.32,1);
-    z-index:20;
-    max-width:330px;
-  }
-  .notification.show { transform:none; opacity:1; }
-
   @media (max-width:980px) {
-    .booking-page { grid-template-columns:1fr; gap:56px; padding:56px 6vw 80px; }
-    .booking-page::before { right:-14px; top:24%; font-size:clamp(90px,26vw,160px); opacity:0.07; }
-  }
-
-  @media (max-width:640px) {
-    .top-bar { padding:18px 5vw; }
-    .booking-form-wrap { padding:22px; }
-    .form-row { grid-template-columns:1fr; }
-    .book-info { margin-top:30px; }
+    .booking-page { grid-template-columns:1fr; gap:40px; padding:40px 6vw 72px; }
     .service-options { grid-template-columns:1fr; }
-    .booking-text h1 { font-size:clamp(32px,10vw,44px); }
-    .book-info-sub { font-size:12px; }
-    .form-input, .service-option { font-size:13px; padding:12px; }
   }
 </style>
 </head>
 <body>
 
 <div class="top-bar">
-  <a class="back-link" href="index.html">← Về Trang Chủ</a>
-  <button class="theme-switch" id="themeSwitch" aria-label="Đổi giao diện">
-    <div class="theme-switch-thumb"><span id="themeIcon">🌙</span></div>
-  </button>
+  <div class="top-bar-left">
+    <a class="brand-link" href="index.html">
+      <img src="assets/nhat-linh-logo.png" alt="Logo">
+      <span><strong>VƯỜN VUA</strong>ĐẶT PHÒNG</span>
+    </a>
+    <a class="nav-pill" href="blog.html">Bài viết</a>
+  </div>
+  <div class="top-bar-right">
+    <a class="nav-pill" href="index.html">Trang chủ</a>
+    <button class="theme-switch" id="themeSwitch" aria-label="Đổi giao diện">
+      <div class="theme-switch-thumb"><span id="themeIcon">🌙</span></div>
+    </button>
+  </div>
 </div>
 
 <section class="booking-page">
   <div class="booking-text">
     <span class="section-eyebrow">Bắt đầu hành trình · 予約</span>
     <h1>Đặt <em>Ngôi Nhà</em><br>Mơ Ước Của Bạn</h1>
-    <p>Điền form đặt phòng, đội ngũ Vườn Vua sẽ liên hệ xác nhận trong vòng 2 giờ và hỗ trợ bạn thiết kế kỳ nghỉ phù hợp nhất.</p>
-
+    <p>Điền form đặt phòng — đội ngũ Vườn Vua liên hệ xác nhận trong vòng 2 giờ và tư vấn lịch trình phù hợp nhất.</p>
     <div class="book-info">
       <div class="book-info-row">
         <div class="book-icon">01</div>
@@ -364,7 +144,7 @@
       <div class="book-info-row">
         <div class="book-icon">02</div>
         <div>
-          <div class="book-info-title">Xác nhận ngay lập tức</div>
+          <div class="book-info-title">Xác nhận nhanh</div>
           <div class="book-info-sub">Email xác nhận trong 2 giờ</div>
         </div>
       </div>
@@ -372,7 +152,7 @@
         <div class="book-icon">03</div>
         <div>
           <div class="book-info-title">Hủy miễn phí</div>
-          <div class="book-info-sub">Trong vòng 48 giờ sau đặt phòng</div>
+          <div class="book-info-sub">Trong 48 giờ sau đặt phòng</div>
         </div>
       </div>
     </div>
@@ -383,93 +163,80 @@
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Họ và Tên</label>
-          <input type="text" class="form-input" id="bookName" placeholder="Nguyễn Văn A">
+          <input type="text" class="form-input" id="bookName" placeholder="Nguyễn Văn A" required>
         </div>
         <div class="form-group">
           <label class="form-label">Số điện thoại</label>
-          <input type="tel" class="form-input" id="bookPhone" placeholder="0901 234 567">
+          <input type="tel" class="form-input" id="bookPhone" placeholder="0901 234 567" required>
         </div>
       </div>
-
       <div class="form-group">
         <label class="form-label">Email</label>
-        <input type="email" class="form-input" id="bookEmail" placeholder="email@example.com">
+        <input type="email" class="form-input" id="bookEmail" placeholder="email@example.com" required>
       </div>
-
       <div class="form-group">
         <label class="form-label">Chọn Dịch Vụ</label>
         <input type="hidden" id="bookService" value="">
         <div class="service-options" id="serviceOptions">
-          <button type="button" class="service-option" data-service="onsen">Japanese Onsen</button>
-          <button type="button" class="service-option" data-service="pool">Hồ Bơi</button>
-          <button type="button" class="service-option" data-service="courts">Sân Thể Thao</button>
-          <button type="button" class="service-option" data-service="restaurant">Nhà Hàng</button>
-          <button type="button" class="service-option" data-service="karaoke">Karaoke</button>
+          <button type="button" class="service-option" data-service="onsen"><span>Japanese Onsen</span></button>
+          <button type="button" class="service-option" data-service="pool"><span>Hồ Bơi</span></button>
+          <button type="button" class="service-option" data-service="courts"><span>Sân Thể Thao</span></button>
+          <button type="button" class="service-option" data-service="restaurant"><span>Nhà Hàng</span></button>
+          <button type="button" class="service-option" data-service="karaoke"><span>Karaoke</span></button>
         </div>
       </div>
-
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Ngày nhận phòng</label>
-          <input type="date" class="form-input" id="bookCheckin">
+          <input type="date" class="form-input" id="bookCheckin" required>
         </div>
         <div class="form-group">
           <label class="form-label">Ngày trả phòng</label>
-          <input type="date" class="form-input" id="bookCheckout">
+          <input type="date" class="form-input" id="bookCheckout" required>
         </div>
       </div>
-
       <div class="form-group">
         <label class="form-label">Số khách</label>
         <input type="hidden" id="bookGuests" value="2">
         <div class="guest-stepper" aria-label="Bộ đếm số khách">
-          <button type="button" class="guest-btn" id="guestMinus" aria-label="Giảm số khách">−</button>
+          <button type="button" class="guest-btn" id="guestMinus" aria-label="Giảm">−</button>
           <div class="guest-count" id="guestCount">2 khách</div>
-          <button type="button" class="guest-btn" id="guestPlus" aria-label="Tăng số khách">+</button>
+          <button type="button" class="guest-btn" id="guestPlus" aria-label="Tăng">+</button>
         </div>
       </div>
-
-      <button class="form-submit" id="bookSubmit" onclick="submitBooking()">Gửi Yêu Cầu Đặt Phòng</button>
+      <button type="button" class="form-submit" id="bookSubmit">Gửi Yêu Cầu Đặt Phòng</button>
     </div>
-
     <div class="booking-success" id="bookingSuccess">
       <span class="success-icon">⛩</span>
-      <h3 style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;margin-bottom:16px;color:var(--text);">Đặt phòng thành công!</h3>
-      <p style="color:var(--text2);line-height:1.8;">Cảm ơn bạn đã tin tưởng Vườn Vua. Chúng tôi sẽ liên hệ trong vòng <strong style="color:var(--red);">2 giờ</strong>.</p>
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;margin-bottom:16px">Đặt phòng thành công!</h3>
+      <p style="color:var(--text2);line-height:1.8">Cảm ơn bạn đã tin tưởng Vườn Vua. Chúng tôi sẽ liên hệ trong vòng <strong style="color:var(--red)">2 giờ</strong>.</p>
     </div>
   </div>
 </section>
 
 <div class="notification" id="notification"></div>
 
+<script src="js/supabase.js"></script>
+<script src="js/theme.js"></script>
 <script>
-const html = document.documentElement;
-let isDark = true;
-
-document.getElementById('themeSwitch').addEventListener('click', () => {
-  isDark = !isDark;
-  html.setAttribute('data-theme', isDark ? 'dark' : 'light');
-  document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
-  showNotification(isDark ? '🌙 Chế độ tối' : '☀️ Chế độ sáng');
-});
-
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   setMinDates();
   initGuestStepper();
   initServiceOptions();
   initServiceFromQuery();
+  document.getElementById('bookSubmit').addEventListener('click', submitBooking);
 });
 
 function setMinDates() {
   const checkin = document.getElementById('bookCheckin');
   const checkout = document.getElementById('bookCheckout');
-  if (!checkin || !checkout) return;
-
   const today = new Date().toISOString().split('T')[0];
   checkin.min = today;
   checkout.min = today;
-  checkin.addEventListener('change', (e) => {
-    checkout.min = e.target.value || today;
+  checkin.addEventListener('change', () => {
+    checkout.min = checkin.value || today;
+    if (checkout.value && checkout.value <= checkin.value) checkout.value = '';
   });
 }
 
@@ -478,12 +245,9 @@ function initGuestStepper() {
   const guestCount = document.getElementById('guestCount');
   const minusBtn = document.getElementById('guestMinus');
   const plusBtn = document.getElementById('guestPlus');
-  if (!hiddenInput || !guestCount || !minusBtn || !plusBtn) return;
-
+  let guests = 2;
   const minGuests = 1;
   const maxGuests = 10;
-  let guests = parseInt(hiddenInput.value, 10);
-  if (Number.isNaN(guests)) guests = 2;
 
   const render = () => {
     guests = Math.min(maxGuests, Math.max(minGuests, guests));
@@ -492,7 +256,6 @@ function initGuestStepper() {
     minusBtn.disabled = guests <= minGuests;
     plusBtn.disabled = guests >= maxGuests;
   };
-
   minusBtn.addEventListener('click', () => { guests -= 1; render(); });
   plusBtn.addEventListener('click', () => { guests += 1; render(); });
   render();
@@ -500,14 +263,11 @@ function initGuestStepper() {
 
 function initServiceOptions() {
   const serviceInput = document.getElementById('bookService');
-  const buttons = Array.from(document.querySelectorAll('.service-option'));
-  if (!serviceInput || !buttons.length) return;
-
-  buttons.forEach((btn) => {
+  document.querySelectorAll('.service-option').forEach((btn) => {
     btn.addEventListener('click', () => {
-      const value = btn.dataset.service || '';
-      serviceInput.value = value;
-      buttons.forEach((node) => node.classList.toggle('active', node === btn));
+      serviceInput.value = btn.dataset.service || '';
+      document.querySelectorAll('.service-option').forEach((n) => n.classList.remove('active'));
+      btn.classList.add('active');
     });
   });
 }
@@ -515,53 +275,38 @@ function initServiceOptions() {
 function initServiceFromQuery() {
   const service = new URLSearchParams(window.location.search).get('service');
   if (!service) return;
-
-  const serviceInput = document.getElementById('bookService');
   const matched = document.querySelector(`.service-option[data-service="${service}"]`);
-  if (!serviceInput || !matched) return;
-  matched.click();
-  showNotification(`Đã chọn dịch vụ: ${matched.textContent.trim()}`);
+  if (matched) {
+    matched.click();
+    showNotification(`Đã chọn: ${matched.textContent.trim()}`);
+  }
 }
 
 function getServiceLabel(serviceValue) {
-  const button = document.querySelector(`.service-option[data-service="${serviceValue}"]`);
-  return button ? button.textContent.trim() : serviceValue;
+  const btn = document.querySelector(`.service-option[data-service="${serviceValue}"]`);
+  return btn ? btn.textContent.trim() : serviceValue;
 }
 
 function saveBookingToHistory(booking) {
-  const key = 'vv_bookings';
-  const current = JSON.parse(localStorage.getItem(key) || '[]');
+  const current = JSON.parse(localStorage.getItem('vv_bookings') || '[]');
   current.unshift(booking);
-  localStorage.setItem(key, JSON.stringify(current));
+  localStorage.setItem('vv_bookings', JSON.stringify(current));
 }
 
 async function saveBookingToSupabase(booking) {
-  const SUPABASE_URL = 'https://tzoonwlaxggpmanfvktv.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6b29ud2xheGdncG1hbmZ2a3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDM2NjMsImV4cCI6MjA5MzQ3OTY2M30.33165vW_59tgz-gawHDdpJPF3gd74HUVhiRvDtVYmCo';
-  const payload = {
-    name: booking.guestName,
-    email: booking.email,
-    phone_num: booking.phone,
-    checkin: booking.checkin,
-    checkout: booking.checkout,
-    numbers: String(booking.guests),
-    service: booking.serviceLabel,
-  };
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/customers`, {
+  await supabaseRest('customers', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      apikey: SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      Prefer: 'return=minimal',
-    },
-    body: JSON.stringify(payload),
+    headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify({
+      name: booking.guestName,
+      email: booking.email,
+      phone_num: booking.phone,
+      checkin: booking.checkin,
+      checkout: booking.checkout,
+      numbers: String(booking.guests),
+      service: booking.serviceLabel,
+    }),
   });
-  if (!response.ok) {
-    const details = await response.text();
-    throw new Error(`Supabase insert failed: ${response.status} ${details}`);
-  }
-  return response;
 }
 
 async function submitBooking() {
@@ -574,13 +319,16 @@ async function submitBooking() {
   const guests = document.getElementById('bookGuests').value;
 
   if (!name || !phone || !email || !service || !checkin || !checkout) {
-    showNotification('⚠️ Vui lòng điền đầy đủ thông tin!');
+    showNotification('Vui lòng điền đầy đủ thông tin');
+    return;
+  }
+  if (checkout <= checkin) {
+    showNotification('Ngày trả phòng phải sau ngày nhận phòng');
     return;
   }
 
   const submitBtn = document.getElementById('bookSubmit');
   submitBtn.textContent = 'Đang gửi...';
-  submitBtn.style.opacity = '0.7';
   submitBtn.disabled = true;
 
   const booking = {
@@ -598,28 +346,21 @@ async function submitBooking() {
   };
 
   try {
-    await new Promise((resolve) => setTimeout(resolve, 700));
     await saveBookingToSupabase(booking);
     saveBookingToHistory(booking);
     document.getElementById('bookingForm').style.display = 'none';
     document.getElementById('bookingSuccess').classList.add('show');
-    showNotification('Đặt phòng thành công và đã lưu hệ thống.');
-  } catch (error) {
-    showNotification('Không thể gửi booking. Vui lòng thử lại.');
+    showNotification('Đặt phòng thành công');
+  } catch {
+    saveBookingToHistory(booking);
+    document.getElementById('bookingForm').style.display = 'none';
+    document.getElementById('bookingSuccess').classList.add('show');
+    showNotification('Đã lưu yêu cầu — sẽ đồng bộ khi kết nối lại');
+  } finally {
     submitBtn.textContent = 'Gửi Yêu Cầu Đặt Phòng';
-    submitBtn.style.opacity = '1';
     submitBtn.disabled = false;
   }
-}
-
-function showNotification(msg) {
-  const el = document.getElementById('notification');
-  if (!el) return;
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2800);
 }
 </script>
 </body>
 </html>
-

@@ -3,108 +3,156 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bài viết — Nhật Linh Villa</title>
+<title>Bài viết — Vườn Vua Resort</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/community.css">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
 
+<div class="post-progress" id="postProgress"></div>
+
 <div class="top-bar">
   <div class="top-bar-left">
     <a class="brand-link" href="index.html">
       <img src="assets/nhat-linh-logo.png" alt="Logo">
-      <span><strong>NHẬT LINH</strong>BÀI VIẾT</span>
+      <span><strong>VƯỜN VUA</strong>BÀI VIẾT</span>
     </a>
-    <a class="nav-pill" href="forum.html">← Cộng đồng</a>
+    <a class="nav-pill" href="blog.html">← Tất cả bài viết</a>
   </div>
   <div class="top-bar-right">
-    <a class="nav-pill primary" href="dashboard.html">✏️ Viết bài</a>
+    <a class="nav-pill" href="booking.html">Đặt phòng</a>
     <button class="theme-switch" id="themeSwitch" aria-label="Đổi giao diện">
       <div class="theme-switch-thumb"><span id="themeIcon">🌙</span></div>
     </button>
   </div>
 </div>
 
-<div class="page-wrap">
-  <article class="post-article" id="postArticle">
+<div id="postShell">
+  <div class="page-wrap">
     <div class="empty-state">Đang tải bài viết…</div>
-  </article>
-
-  <section class="comments-section" id="comments">
-    <h3>Bình luận</h3>
-    <form class="comment-form" id="commentForm">
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Tên của bạn</label>
-          <input type="text" class="form-input" id="commentName" placeholder="Nguyễn Văn A" required>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Bình luận</label>
-        <textarea class="form-textarea" id="commentText" placeholder="Chia sẻ suy nghĩ của bạn…" required></textarea>
-      </div>
-      <button type="submit" class="btn btn-primary">Gửi bình luận</button>
-    </form>
-    <div class="comment-list" id="commentList"></div>
-  </section>
+  </div>
 </div>
 
 <div class="notification" id="notification"></div>
 
 <script src="js/supabase.js"></script>
 <script src="js/theme.js"></script>
+<script src="js/sample-posts.js"></script>
 <script src="js/posts.js"></script>
 <script>
 let currentPost = null;
+let replyParentId = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
+  bindScrollProgress();
+
   const slug = new URLSearchParams(location.search).get('slug');
   if (!slug) {
-    document.getElementById('postArticle').innerHTML = '<div class="empty-state">Không tìm thấy bài viết.</div>';
+    document.getElementById('postShell').innerHTML = '<div class="page-wrap"><div class="empty-state">Không tìm thấy bài viết.</div></div>';
     return;
   }
+
   currentPost = await fetchPostBySlug(slug);
   if (!currentPost) {
-    document.getElementById('postArticle').innerHTML = '<div class="empty-state">Bài viết không tồn tại hoặc chưa được đăng.</div>';
+    document.getElementById('postShell').innerHTML = '<div class="page-wrap"><div class="empty-state">Bài viết không tồn tại hoặc chưa được đăng.</div></div>';
     return;
   }
-  renderPost(currentPost);
+
+  renderPostPage(currentPost);
   loadComments();
-  document.getElementById('commentForm').addEventListener('submit', submitComment);
 });
 
-function renderPost(post) {
-  document.title = `${post.title} — Nhật Linh Villa`;
-  const cat = POST_CATEGORIES[post.category] || POST_CATEGORIES.discussion;
-  const tags = (post.tags || []).map((t) => `<span class="tag-pill">${t}</span>`).join(' ');
+function bindScrollProgress() {
+  const bar = document.getElementById('postProgress');
+  window.addEventListener('scroll', () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+    bar.style.width = `${pct}%`;
+  }, { passive: true });
+}
 
-  document.getElementById('postArticle').innerHTML = `
-    <div class="feed-meta" style="margin-bottom:16px">
-      <span class="post-flair ${cat.flair}">${cat.label}</span>
-      ${tags}
-      <span class="feed-time">· ${timeAgo(post.published_at || post.created_at)}</span>
-    </div>
-    <h1 class="page-title" style="margin-bottom:20px">${post.title}</h1>
-    <div class="feed-author" style="margin-bottom:28px">
-      <span class="avatar-sm">${getInitials(post.author_name)}</span>
-      <span>${post.author_name}</span>
-      <span style="color:var(--text3)">· ▲ ${post.upvotes || 0}</span>
-    </div>
-    ${post.cover_image ? `<img class="post-cover" src="${post.cover_image}" alt="">` : ''}
-    <div class="post-content">${renderMarkdown(post.content)}</div>
-    <div style="margin-top:32px;padding-top:20px;border-top:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap">
-      <button class="btn btn-ghost btn-sm" id="postUpvote">▲ Upvote (<span id="postVoteCount">${post.upvotes || 0}</span>)</button>
-      <a class="btn btn-primary btn-sm" href="booking.html" style="text-decoration:none">Đặt phòng ngay</a>
+function renderPostPage(post) {
+  document.title = `${post.title} — Vườn Vua Resort`;
+  const meta = document.querySelector('meta[name="description"]') || document.createElement('meta');
+  meta.name = 'description';
+  meta.content = post.meta_description || excerptFromContent(post.content, 155);
+  if (!meta.parentNode) document.head.appendChild(meta);
+
+  const cat = POST_CATEGORIES[post.category] || POST_CATEGORIES.guide;
+  const tags = (post.tags || []).map((t) => `<span class="tag-pill">${escapeHtml(t)}</span>`).join(' ');
+  const cover = post.cover_image || 'assets/onsen.jpg';
+
+  document.getElementById('postShell').innerHTML = `
+    <header class="post-hero" id="postHero">
+      <div class="post-hero-bg" id="postHeroBg" style="background-image:url('${cover}')"></div>
+      <div class="post-hero-overlay"></div>
+      <div class="post-hero-orb"></div>
+      <div class="post-hero-content">
+        <span class="post-flair ${cat.flair}">${cat.label}</span>
+        <h1 class="post-hero-title">${escapeHtml(post.title)}</h1>
+        <div class="post-hero-meta">
+          <span class="feed-author">
+            <span class="avatar-sm">${getInitials(post.author_name)}</span>
+            ${escapeHtml(post.author_name)}
+          </span>
+          <span>· ${formatDate(post.published_at || post.created_at)}</span>
+          ${tags}
+        </div>
+      </div>
+    </header>
+
+    <div class="page-wrap">
+      <div class="post-article-wrap">
+        <article class="post-article">
+          <div class="post-content-wrap">
+            <div class="post-content" id="postContent">${renderMarkdown(post.content)}</div>
+          </div>
+          <div class="post-floating-cta">
+            <a href="booking.html">Đặt phòng ngay</a>
+          </div>
+        </article>
+      </div>
+
+      <section class="comments-section reveal" id="comments">
+        <h3>Bình luận &amp; trả lời</h3>
+        <form class="comment-form" id="commentForm">
+          <input type="hidden" id="replyParentId" value="">
+          <div id="replyHint" style="display:none;font-size:12px;color:var(--red);margin-bottom:4px">
+            Đang trả lời bình luận — <button type="button" id="cancelReply" style="background:none;border:none;color:var(--text2);cursor:pointer;text-decoration:underline">Hủy</button>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Tên của bạn</label>
+              <input type="text" class="form-input" id="commentName" placeholder="Nguyễn Văn A" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nội dung</label>
+            <textarea class="form-textarea" id="commentText" placeholder="Chia sẻ suy nghĩ hoặc câu hỏi…" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Gửi bình luận</button>
+        </form>
+        <div class="comment-list" id="commentList"></div>
+      </section>
     </div>`;
 
-  const upBtn = document.getElementById('postUpvote');
-  if (localStorage.getItem(`vv_voted_${post.id}`)) upBtn.classList.add('voted');
-  upBtn.addEventListener('click', async () => {
-    const count = await upvotePost(post.id);
-    if (count !== null) document.getElementById('postVoteCount').textContent = count;
-  });
+  document.getElementById('commentForm').addEventListener('submit', submitComment);
+  document.getElementById('cancelReply').addEventListener('click', clearReply);
+  bindParallax();
+  initRevealObserver();
+}
+
+function bindParallax() {
+  const bg = document.getElementById('postHeroBg');
+  const hero = document.getElementById('postHero');
+  if (!bg || !hero) return;
+  window.addEventListener('scroll', () => {
+    const rect = hero.getBoundingClientRect();
+    const offset = Math.min(Math.max(-rect.top * 0.25, -60), 0);
+    bg.style.transform = `scale(1.08) translateY(${offset}px)`;
+  }, { passive: true });
 }
 
 async function loadComments() {
@@ -114,24 +162,40 @@ async function loadComments() {
     list.innerHTML = '<p style="color:var(--text3);font-size:14px">Chưa có bình luận. Hãy là người đầu tiên!</p>';
     return;
   }
-  list.innerHTML = comments.map((c) => `
-    <div class="comment-item">
-      <span class="avatar-sm">${getInitials(c.author_name)}</span>
-      <div>
-        <div class="comment-meta"><strong>${c.author_name}</strong> · ${timeAgo(c.created_at)}</div>
-        <div class="comment-body">${c.content.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
-      </div>
-    </div>`).join('');
+  const tree = buildCommentTree(comments);
+  list.innerHTML = tree.map((c) => commentItemHtml(c, currentPost.id)).join('');
+  list.querySelectorAll('.comment-reply-btn').forEach((btn) => {
+    btn.addEventListener('click', () => startReply(btn.dataset.parent));
+  });
+}
+
+function startReply(parentId) {
+  replyParentId = parentId;
+  document.getElementById('replyParentId').value = parentId;
+  document.getElementById('replyHint').style.display = 'block';
+  document.getElementById('commentForm').classList.add('reply-mode');
+  document.getElementById('commentText').focus();
+  document.getElementById('comments').scrollIntoView({ behavior: 'smooth' });
+}
+
+function clearReply() {
+  replyParentId = null;
+  document.getElementById('replyParentId').value = '';
+  document.getElementById('replyHint').style.display = 'none';
+  document.getElementById('commentForm').classList.remove('reply-mode');
 }
 
 async function submitComment(e) {
   e.preventDefault();
   const author_name = document.getElementById('commentName').value.trim();
   const content = document.getElementById('commentText').value.trim();
+  const parent_id = document.getElementById('replyParentId').value || null;
   if (!author_name || !content) return;
-  await addComment(currentPost.id, { author_name, content });
+
+  await addComment(currentPost.id, { author_name, content, parent_id });
   document.getElementById('commentText').value = '';
-  showNotification('Đã gửi bình luận');
+  clearReply();
+  showNotification(parent_id ? 'Đã gửi trả lời' : 'Đã gửi bình luận');
   loadComments();
 }
 </script>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài Viết & Trải Nghiệm — Vườn Vua Resort</title>
+<meta name="description" content="Đọc hướng dẫn, đánh giá và trải nghiệm tại Vườn Vua Resort — Onsen, hồ bơi, thể thao, ẩm thực và giải trí.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/community.css">
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-left">
+    <a class="brand-link" href="index.html">
+      <img src="assets/nhat-linh-logo.png" alt="Logo">
+      <span><strong>VƯỜN VUA</strong>BÀI VIẾT</span>
+    </a>
+    <a class="nav-pill active" href="blog.html">Tất cả</a>
+  </div>
+  <div class="top-bar-right">
+    <a class="nav-pill" href="booking.html">Đặt phòng</a>
+    <a class="nav-pill" href="dashboard.html">Quản trị</a>
+    <button class="theme-switch" id="themeSwitch" aria-label="Đổi giao diện">
+      <div class="theme-switch-thumb"><span id="themeIcon">🌙</span></div>
+    </button>
+  </div>
+</div>
+
+<div class="page-wrap">
+  <div class="two-col">
+    <div>
+      <div class="page-header reveal">
+        <span class="section-eyebrow">Bài viết · 記事</span>
+        <h1 class="page-title">Khám Phá <em>Trải Nghiệm</em></h1>
+        <p class="page-sub">Hướng dẫn, đánh giá và câu chuyện thực tế về dịch vụ tại Vườn Vua — tối ưu cho tìm kiếm và đọc nhanh.</p>
+      </div>
+
+      <div class="tab-row" id="categoryTabs">
+        <button class="tab-btn active" data-cat="all">Tất cả</button>
+        <button class="tab-btn" data-cat="guide">Hướng dẫn</button>
+        <button class="tab-btn" data-cat="review">Đánh giá</button>
+        <button class="tab-btn" data-cat="experience">Trải nghiệm</button>
+        <button class="tab-btn" data-cat="news">Tin tức</button>
+      </div>
+
+      <div id="featuredPost"></div>
+      <div class="blog-grid" id="blogGrid">
+        <div class="empty-state">Đang tải bài viết…</div>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="side-card reveal">
+        <h3>Đặt phòng nhanh</h3>
+        <p>Chọn dịch vụ yêu thích và gửi yêu cầu — đội ngũ xác nhận trong 2 giờ.</p>
+        <a class="btn btn-primary" href="booking.html" style="display:block;text-align:center;text-decoration:none;margin-top:14px">Đặt ngay</a>
+      </div>
+      <div class="side-card reveal">
+        <h3>Dịch vụ nổi bật</h3>
+        <p style="margin-bottom:10px"><a href="booking.html?service=onsen" style="color:var(--red)">Japanese Onsen</a></p>
+        <p style="margin-bottom:10px"><a href="booking.html?service=pool" style="color:var(--red)">Hồ Bơi</a></p>
+        <p style="margin-bottom:10px"><a href="booking.html?service=restaurant" style="color:var(--red)">Nhà Hàng</a></p>
+        <p><a href="booking.html?service=karaoke" style="color:var(--red)">Karaoke</a></p>
+      </div>
+      <div class="side-card reveal">
+        <h3>Quản trị nội dung</h3>
+        <p>Đăng nhập dashboard để viết bài, xem bình luận và trả lời khách.</p>
+        <a class="btn btn-ghost" href="dashboard.html" style="display:block;text-align:center;text-decoration:none;margin-top:14px">Mở Dashboard</a>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="notification" id="notification"></div>
+
+<script src="js/supabase.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/sample-posts.js"></script>
+<script src="js/posts.js"></script>
+<script>
+let activeCategory = 'all';
+
+document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
+  loadBlog();
+  bindTabs();
+});
+
+function bindTabs() {
+  document.querySelectorAll('#categoryTabs .tab-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#categoryTabs .tab-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeCategory = btn.dataset.cat;
+      loadBlog();
+    });
+  });
+}
+
+async function loadBlog() {
+  const grid = document.getElementById('blogGrid');
+  const featured = document.getElementById('featuredPost');
+  grid.innerHTML = '<div class="empty-state">Đang tải…</div>';
+  featured.innerHTML = '';
+
+  const posts = await fetchPublishedPosts({ category: activeCategory });
+  if (!posts.length) {
+    grid.innerHTML = '<div class="empty-state">Chưa có bài viết nào.</div>';
+    return;
+  }
+
+  if (activeCategory === 'all') {
+    featured.innerHTML = blogFeaturedHtml(posts[0]);
+    grid.innerHTML = posts.slice(1).map((p, i) => blogCardHtml(p, i)).join('');
+  } else {
+    grid.innerHTML = posts.map((p, i) => blogCardHtml(p, i)).join('');
+  }
+
+  initRevealObserver();
+}
+</script>
+</body>
+</html>

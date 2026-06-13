@@ -1,12 +1,15 @@
 const POST_CATEGORIES = {
-  discussion: { label: 'Thảo luận', flair: 'flair-discussion' },
+  guide: { label: 'Hướng dẫn', flair: 'flair-guide' },
   review: { label: 'Đánh giá', flair: 'flair-review' },
-  blog: { label: 'Blog', flair: 'flair-blog' },
+  experience: { label: 'Trải nghiệm', flair: 'flair-experience' },
   news: { label: 'Tin tức', flair: 'flair-news' },
+  discussion: { label: 'Bài viết', flair: 'flair-guide' },
+  blog: { label: 'Blog', flair: 'flair-experience' },
 };
 
 const DEMO_POSTS_KEY = 'vv_demo_posts';
 const DEMO_COMMENTS_KEY = 'vv_demo_comments';
+const SAMPLE_SEEDED_KEY = 'vv_sample_seeded';
 
 function slugify(text) {
   return text
@@ -33,6 +36,14 @@ function timeAgo(dateStr) {
   return new Date(dateStr).toLocaleDateString('vi-VN');
 }
 
+function formatDate(dateStr) {
+  return new Date(dateStr).toLocaleDateString('vi-VN', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
 function excerptFromContent(content, len = 160) {
   const plain = content.replace(/[#*_>`~\[\]()]/g, '').replace(/\n+/g, ' ').trim();
   return plain.length > len ? `${plain.slice(0, len)}…` : plain;
@@ -48,17 +59,21 @@ function getInitials(name) {
     .toUpperCase();
 }
 
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 function renderMarkdown(text) {
   if (!text) return '';
   if (typeof marked !== 'undefined') {
     marked.setOptions({ breaks: true, gfm: true });
     return marked.parse(text);
   }
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\n/g, '<br>');
+  return escapeHtml(text).replace(/\n/g, '<br>');
 }
 
 function getDemoPosts() {
@@ -73,46 +88,71 @@ function saveDemoPosts(posts) {
   localStorage.setItem(DEMO_POSTS_KEY, JSON.stringify(posts));
 }
 
-function getDemoComments(postId) {
+function getDemoComments() {
   try {
-    const all = JSON.parse(localStorage.getItem(DEMO_COMMENTS_KEY) || '{}');
-    return all[postId] || [];
+    return JSON.parse(localStorage.getItem(DEMO_COMMENTS_KEY) || '{}');
   } catch {
-    return [];
+    return {};
   }
 }
 
+function getDemoCommentsForPost(postId) {
+  return getDemoComments()[postId] || [];
+}
+
 function saveDemoComment(postId, comment) {
-  const all = JSON.parse(localStorage.getItem(DEMO_COMMENTS_KEY) || '{}');
+  const all = getDemoComments();
   if (!all[postId]) all[postId] = [];
-  all[postId].unshift(comment);
+  all[postId].push(comment);
   localStorage.setItem(DEMO_COMMENTS_KEY, JSON.stringify(all));
 }
 
+function seedSamplePostsIfNeeded() {
+  if (localStorage.getItem(SAMPLE_SEEDED_KEY)) return;
+  const existing = getDemoPosts();
+  if (existing.length) {
+    localStorage.setItem(SAMPLE_SEEDED_KEY, '1');
+    return;
+  }
+  if (typeof SAMPLE_POSTS === 'undefined') return;
+  const posts = SAMPLE_POSTS.map((p) => ({
+    ...p,
+    excerpt: p.excerpt || excerptFromContent(p.content),
+  }));
+  saveDemoPosts(posts);
+  localStorage.setItem(SAMPLE_SEEDED_KEY, '1');
+}
+
 async function fetchPublishedPosts({ category, limit = 50, order = 'published_at.desc' } = {}) {
+  seedSamplePostsIfNeeded();
   try {
     let query = `posts?status=eq.published&select=*&order=${order}&limit=${limit}`;
     if (category && category !== 'all') query += `&category=eq.${category}`;
-    return await supabaseRest(query);
+    const rows = await supabaseRest(query);
+    if (rows?.length) return rows;
+    return getDemoPosts().filter((p) => p.status === 'published');
   } catch {
     return getDemoPosts().filter((p) => p.status === 'published');
   }
 }
 
 async function fetchPostBySlug(slug) {
+  seedSamplePostsIfNeeded();
   try {
     const rows = await supabaseRest(`posts?slug=eq.${encodeURIComponent(slug)}&select=*&limit=1`);
-    return rows?.[0] || null;
+    if (rows?.[0]) return rows[0];
+    return getDemoPosts().find((p) => p.slug === slug && p.status === 'published') || null;
   } catch {
     return getDemoPosts().find((p) => p.slug === slug && p.status === 'published') || null;
   }
 }
 
 async function fetchMyPosts(authorId) {
+  seedSamplePostsIfNeeded();
   try {
     return await authRest(`posts?author_id=eq.${authorId}&select=*&order=updated_at.desc`);
   } catch {
-    return getDemoPosts().filter((p) => p.author_id === authorId);
+    return getDemoPosts().filter((p) => p.author_id === String(authorId));
   }
 }
 
@@ -125,7 +165,15 @@ async function createPost(post) {
     });
     return Array.isArray(rows) ? rows[0] : rows;
   } catch {
-    const demo = { ...post, id: `demo-${Date.now()}`, created_at: new Date().toISOString(), updated_at: new Date().toISOString(), upvotes: 0, comment_count: 0 };
+    const demo = {
+      ...post,
+      id: `demo-${Date.now()}`,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      upvotes: 0,
+      comment_count: 0,
+      excerpt: post.excerpt || excerptFromContent(post.content),
+    };
     const posts = getDemoPosts();
     posts.unshift(demo);
     saveDemoPosts(posts);
@@ -159,16 +207,65 @@ async function deletePost(id) {
   }
 }
 
+function buildCommentTree(comments) {
+  const map = {};
+  const roots = [];
+  comments.forEach((c) => {
+    map[c.id] = { ...c, replies: [] };
+  });
+  comments.forEach((c) => {
+    if (c.parent_id && map[c.parent_id]) {
+      map[c.parent_id].replies.push(map[c.id]);
+    } else {
+      roots.push(map[c.id]);
+    }
+  });
+  return roots;
+}
+
 async function fetchComments(postId) {
   try {
-    return await supabaseRest(`comments?post_id=eq.${postId}&select=*&order=created_at.asc`);
+    const rows = await supabaseRest(
+      `comments?post_id=eq.${postId}&select=*&order=created_at.asc`
+    );
+    if (rows?.length) return rows;
+    return getDemoCommentsForPost(postId);
   } catch {
-    return getDemoComments(postId);
+    return getDemoCommentsForPost(postId);
   }
 }
 
-async function addComment(postId, { author_name, content }) {
-  const comment = { post_id: postId, author_name, content, upvotes: 0, created_at: new Date().toISOString() };
+async function fetchAllCommentsAdmin() {
+  try {
+    return await authRest(
+      'comments?select=*,posts(title,slug)&order=created_at.desc&limit=100'
+    );
+  } catch {
+    const posts = getDemoPosts();
+    const all = getDemoComments();
+    const flat = [];
+    Object.keys(all).forEach((postId) => {
+      const post = posts.find((p) => p.id === postId);
+      all[postId].forEach((c) => {
+        flat.push({
+          ...c,
+          posts: post ? { title: post.title, slug: post.slug } : null,
+        });
+      });
+    });
+    return flat.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  }
+}
+
+async function addComment(postId, { author_name, content, parent_id = null }) {
+  const comment = {
+    post_id: postId,
+    author_name,
+    content,
+    parent_id,
+    upvotes: 0,
+    created_at: new Date().toISOString(),
+  };
   try {
     const rows = await supabaseRest('comments', {
       method: 'POST',
@@ -181,62 +278,104 @@ async function addComment(postId, { author_name, content }) {
     saveDemoComment(postId, demo);
     const posts = getDemoPosts();
     const p = posts.find((x) => x.id === postId);
-    if (p) { p.comment_count = (p.comment_count || 0) + 1; saveDemoPosts(posts); }
+    if (p) {
+      p.comment_count = (p.comment_count || 0) + 1;
+      saveDemoPosts(posts);
+    }
     return demo;
   }
 }
 
-async function upvotePost(postId) {
-  const key = `vv_voted_${postId}`;
-  if (localStorage.getItem(key)) return null;
+async function deleteComment(id, postId) {
   try {
-    const rows = await supabaseRest(`posts?id=eq.${postId}&select=upvotes&limit=1`);
-    const current = rows?.[0]?.upvotes || 0;
-    await supabaseRest(`posts?id=eq.${postId}`, {
-      method: 'PATCH',
-      headers: { Prefer: 'return=minimal' },
-      body: JSON.stringify({ upvotes: current + 1 }),
-    });
-    localStorage.setItem(key, '1');
-    return current + 1;
+    await authRest(`comments?id=eq.${id}`, { method: 'DELETE' });
   } catch {
-    const posts = getDemoPosts();
-    const p = posts.find((x) => x.id === postId);
-    if (p && !localStorage.getItem(key)) {
-      p.upvotes = (p.upvotes || 0) + 1;
-      saveDemoPosts(posts);
-      localStorage.setItem(key, '1');
-      return p.upvotes;
+    const all = getDemoComments();
+    if (all[postId]) {
+      all[postId] = all[postId].filter((c) => c.id !== id && c.parent_id !== id);
+      localStorage.setItem(DEMO_COMMENTS_KEY, JSON.stringify(all));
+      const posts = getDemoPosts();
+      const p = posts.find((x) => x.id === postId);
+      if (p && p.comment_count > 0) {
+        p.comment_count -= 1;
+        saveDemoPosts(posts);
+      }
     }
-    return null;
   }
 }
 
-function postCardHtml(post) {
-  const cat = POST_CATEGORIES[post.category] || POST_CATEGORIES.discussion;
-  const tags = (post.tags || []).slice(0, 3).map((t) => `<span class="tag-pill">${t}</span>`).join('');
+function blogFeaturedHtml(post) {
+  const cat = POST_CATEGORIES[post.category] || POST_CATEGORIES.guide;
   return `
-    <article class="feed-card" data-slug="${post.slug}">
-      <div class="vote-col">
-        <button class="vote-btn" data-vote="${post.id}" aria-label="Upvote">▲</button>
-        <span class="vote-count" id="votes-${post.id}">${post.upvotes || 0}</span>
+    <a href="post.html?slug=${encodeURIComponent(post.slug)}" class="blog-featured reveal">
+      <div class="blog-featured-bg" style="background-image:url('${post.cover_image || 'assets/onsen.jpg'}')"></div>
+      <div class="blog-featured-overlay"></div>
+      <div class="blog-featured-content">
+        <span class="post-flair ${cat.flair}">${cat.label}</span>
+        <h2 class="blog-featured-title">${escapeHtml(post.title)}</h2>
+        <p class="blog-featured-excerpt">${escapeHtml(post.excerpt || excerptFromContent(post.content))}</p>
+        <div class="blog-featured-meta">
+          <span>${formatDate(post.published_at || post.created_at)}</span>
+          <span class="blog-read-more">Đọc bài viết →</span>
+        </div>
       </div>
-      <div class="feed-body">
-        <div class="feed-meta">
+    </a>`;
+}
+
+function blogCardHtml(post, index) {
+  const cat = POST_CATEGORIES[post.category] || POST_CATEGORIES.guide;
+  const delay = Math.min(index * 0.08, 0.48);
+  return `
+    <article class="blog-card reveal" style="--reveal-delay:${delay}s" data-slug="${post.slug}">
+      <a href="post.html?slug=${encodeURIComponent(post.slug)}" class="blog-card-link">
+        <div class="blog-card-visual">
+          <div class="blog-card-img" style="background-image:url('${post.cover_image || 'assets/onsen.jpg'}')"></div>
+          <div class="blog-card-shine"></div>
           <span class="post-flair ${cat.flair}">${cat.label}</span>
-          ${tags}
-          <span class="feed-time">· ${timeAgo(post.published_at || post.created_at)}</span>
         </div>
-        <h2 class="feed-title"><a href="post.html?slug=${encodeURIComponent(post.slug)}">${post.title}</a></h2>
-        <p class="feed-excerpt">${post.excerpt || excerptFromContent(post.content)}</p>
-        <div class="feed-footer">
-          <div class="feed-author">
-            <span class="avatar-sm">${getInitials(post.author_name)}</span>
-            <span>${post.author_name}</span>
+        <div class="blog-card-body">
+          <time class="blog-card-date">${formatDate(post.published_at || post.created_at)}</time>
+          <h2 class="blog-card-title">${escapeHtml(post.title)}</h2>
+          <p class="blog-card-excerpt">${escapeHtml(post.excerpt || excerptFromContent(post.content, 120))}</p>
+          <div class="blog-card-footer">
+            <span class="blog-card-author">${escapeHtml(post.author_name)}</span>
+            <span class="blog-card-comments">${post.comment_count || 0} bình luận</span>
           </div>
-          <a href="post.html?slug=${encodeURIComponent(post.slug)}#comments" class="feed-comments">💬 ${post.comment_count || 0} bình luận</a>
         </div>
-      </div>
-      ${post.cover_image ? `<div class="feed-thumb" style="background-image:url('${post.cover_image}')"></div>` : ''}
+      </a>
     </article>`;
+}
+
+function commentItemHtml(c, postId, depth = 0) {
+  const replies = (c.replies || [])
+    .map((r) => commentItemHtml(r, postId, depth + 1))
+    .join('');
+  return `
+    <div class="comment-thread-item" data-id="${c.id}" style="--depth:${depth}">
+      <div class="comment-bubble">
+        <div class="comment-meta">
+          <span class="avatar-sm">${getInitials(c.author_name)}</span>
+          <strong>${escapeHtml(c.author_name)}</strong>
+          <span>· ${timeAgo(c.created_at)}</span>
+        </div>
+        <div class="comment-body">${escapeHtml(c.content).replace(/\n/g, '<br>')}</div>
+        <button type="button" class="comment-reply-btn" data-parent="${c.id}">Trả lời</button>
+      </div>
+      ${replies ? `<div class="comment-replies">${replies}</div>` : ''}
+    </div>`;
+}
+
+function initRevealObserver() {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+  );
+  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 }
